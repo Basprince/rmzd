@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>肉贸智达</title>
+<style>
+:root{--bg:#eef2f5;--stripe:#e6edf3;--card:#fff;--ink:#14263a;--mut:#5d7083;--line:#d3dce4;--ac:#0f5c7a;--acf:#fff;--warn:#b86e00;--warnb:#fff3dc;--err:#b3261e;--errb:#fde8e6;--ok:#1b7a4b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a24;--stripe:#223343;--card:#17232f;--ink:#e6edf3;--mut:#93a5b6;--line:#2c3d4d;--ac:#5bb8d9;--acf:#06202b;--warn:#f0b55a;--warnb:#3a2c10;--err:#ff8a80;--errb:#3d1a18;--ok:#6fd49d}}
+:root[data-theme="dark"]{--bg:#0f1a24;--stripe:#223343;--card:#17232f;--ink:#e6edf3;--mut:#93a5b6;--line:#2c3d4d;--ac:#5bb8d9;--acf:#06202b;--warn:#f0b55a;--warnb:#3a2c10;--err:#ff8a80;--errb:#3d1a18;--ok:#6fd49d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:14px 14px 0}
+h1{font-size:20px;margin:0 0 10px}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 13px;border-radius:8px;font:inherit}
+nav button.on{background:var(--ac);color:var(--acf);border-color:var(--ac)}
+main{padding:12px 14px 40px;max-width:1100px;margin:auto}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+h2{font-size:16px;margin:0 0 8px}
+p.h{color:var(--mut);margin:0 0 10px;font-size:13px}
+textarea,input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 8px;width:100%}
+textarea{min-height:110px;resize:vertical}
+#tx,#sx{min-height:340px}
+#lx{min-height:240px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.row>*{width:auto}
+.tw.tv{max-height:calc(100vh - 130px);overflow:auto}
+.tw.tv th{position:sticky;top:0;z-index:3;background:var(--bg);box-shadow:0 1px 0 var(--line)}
+.row.stk{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--card);padding:8px 0;margin:0 0 6px;border-bottom:1px solid var(--line)}
+button.b{background:var(--ac);color:var(--acf);border:0;border-radius:8px;padding:9px 14px;font:inherit}
+button.g{background:transparent;color:var(--ac);border:1px solid var(--ac);border-radius:8px;padding:8px 13px;font:inherit}
+button.d{background:transparent;color:var(--err);border:1px solid var(--err);border-radius:8px;padding:8px 13px;font:inherit}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;min-width:100%;font-size:13px}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left}
+th{background:var(--bg);color:var(--mut);font-weight:600}
+td input{min-width:70px;padding:4px 5px;font-size:13px}
+td input.dt{min-width:112px}
+td select{min-width:92px;padding:4px 16px 4px 6px}
+input[type=checkbox]{width:22px!important;height:22px;min-width:22px!important;padding:0;margin:2px 6px;accent-color:var(--ac)}
+td input.w{min-width:120px}
+table tr:nth-child(even):not(.e):not(.w)>td{background:var(--stripe)}
+tr.e td{background:var(--errb)}tr.w td{background:var(--warnb)}
+.tag{font-size:12px;padding:1px 6px;border-radius:5px}
+.tag.e{color:var(--err)}.tag.w{color:var(--warn)}
+.stat{color:var(--mut);font-size:13px}
+</style></head><body>
+<header><h1>肉贸智达</h1>
+<nav id="nav"></nav></header>
+<main id="m"></main>
+<script>
+let IDX=new WeakMap(),RT=0,LD=0,AMBC=null,DPG=0,PGSZ=13,CHK=[],TV={},OSORT="new",SSORT="new",PS="",MQ="",OF={country:"",plant:"",prod:"",spec:"",from:"",to:""};const RIC=new Map(),CC=new Map(),DN=new Map();
+function lazyRender(){clearTimeout(RT);RT=setTimeout(function f(){const a=document.activeElement,m=document.getElementById("m");if(Date.now()-LD<700||(a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)&&m&&m.contains&&m.contains(a))){RT=setTimeout(f,400);return}render()},500)}
+if(document.addEventListener){document.addEventListener("pointerdown",()=>{LD=Date.now()},true)}
+const COLS=[["date","报盘日期"],["country","国家"],["brand","品牌"],["plant","厂号"],["product","产品"],["spec","规格"],["ship","船期"],["qty","柜数"],["cur","币种"],["price","价格/吨"],["pay","首付比例"],["note","备注"]];
+const COUNTRIES=["巴西","阿根廷","乌拉圭","巴拉圭","澳大利亚","新西兰","美国","加拿大","智利","玻利维亚","哥斯达黎加","墨西哥","西班牙","德国","波兰","澳洲"];
+const SEED_MAP=[["Beef Striploin","牛外脊","牛外脊"],["Beef Ribeye","牛肉眼","牛肉眼"],["Beef Tenderloin","牛里脊","牛里脊"],["Beef Brisket","牛腩","牛腩"],["Beef Shank","牛腱","牛腱"],["Beef Chuck Roll","牛肩肉","牛肩肉"],["Beef Knuckle","牛霖","牛霖"]];
+const SEED_TAX=[["牛外脊",12,9],["牛肉眼",12,9],["牛里脊",12,9],["牛腩",12,9],["牛腱",12,9],["牛肩肉",12,9],["牛霖",12,9]];
+let S={offers:[],tax:[],map:SEED_MAP.map(r=>({en:r[0],cn:r[1],std:r[2]})),rate:7.2};
+let D=[],SEL=new Set(),tab="entry",msg="";
+try{const x=localStorage.getItem("baopan_v1");if(x)S=Object.assign(S,JSON.parse(x))}catch(e){}
+S.groups=S.groups||[];S.factories=S.factories||[];S.spot=S.spot||[];S.rates=S.rates||[];S.customers=S.customers||[];if(!S.sources)S.sources=[{country:"中国",org:"农业农村部畜牧兽医局",content:"生猪、活牛、活羊周度监测",url:""},{country:"澳大利亚",org:"MLA",content:"活牛、羔羊、成年羊价格指标",url:""},{country:"乌拉圭",org:"INAC",content:"牛羊活体及胴体价格",url:""},{country:"阿根廷",org:"MAG-Cañuelas 市场行情",content:"各类牛只实际交易价格",url:""},{country:"巴西",org:"CEPEA/ESALQ",content:"肥牛及相关市场价格指标",url:""},{country:"新西兰",org:"Beef + Lamb New Zealand",content:"牛羊农场端价格趋势",url:""},{country:"新西兰",org:"interest.co.nz",content:"加工计划价及地区价格差异",url:""},{country:"乌拉圭",org:"MGAP",content:"活牛、活羊价格",url:""}];S.goods=S.goods||[];if(!S.events)S.events=[{date:"2019-12-01",note:"走私货涌入"},{date:"2020-02-01",note:"新冠疫情"},{date:"2020-12-01",note:"货物消杀"},{date:"2023-01-08",note:"疫情解封"},{date:"2025-12-31",note:"牛肉进口配额政策"}];S.live=S.live||[];S.fx=S.fx&&S.fx.length?S.fx:["AUD","NZD","BRL","ARS","UYU","BOB","EUR"].map(c=>({cur:c,rate:0}));if(!S.rules)S.rules=[{inc:"件套",exc:"",std:"件套"},{inc:"缺失+牛前|缺失+牛后",exc:"",std:"牛前后"},{inc:"不带金钱腱",exc:"",std:"后腱龟腱不带金钱腱"},{inc:"西冷+眼肉",exc:"",std:"西冷眼肉"}];if(!S.taxReal||(S.tax[0]&&!S.tax[0].country))S.tax=[];"2026-08-13:676.02,2026-08-12:676.04,2026-08-11:676.10,2026-08-10:676.14,2026-08-08:676.55,2026-08-07:676.25,2026-08-06:676.71,2026-08-05:676.53,2026-08-04:676.41,2026-08-03:677.34,2026-08-01:677.31,2026-07-31:677.05,2026-07-30:676.96,2026-07-29:678.59,2026-07-28:678.45,2026-07-27:678.09,2026-07-25:679.02,2026-07-24:678.77,2026-07-23:679.44,2026-07-22:678.93,2026-07-21:678.35,2026-07-20:678.49,2026-07-18:679.62,2026-07-17:679.41,2026-07-16:678.90,2026-07-15:678.52,2026-07-14:678.61,2026-07-13:679.68,2026-07-11:679.52,2026-07-10:679.29,2026-07-09:680.98,2026-07-08:682.12,2026-07-07:681.20,2026-07-06:681.21,2026-07-04:679.87,2026-07-03:679.77,2026-07-02:680.20,2026-07-01:680.69,2026-06-30:680.34,2026-06-29:681.40,2026-06-27:681.82,2026-06-26:681.63,2026-06-25:681.51,2026-06-24:682.75,2026-06-23:680.68,2026-06-22:679.14,2026-06-20:679.32,2026-06-19:679.32,2026-06-18:678.62,2026-06-17:677.57,2026-11-06:668.71,2026-11-05:668.54,2026-11-04:669.00,2026-11-03:668.74,2026-11-02:666.46,2026-11-01:667.28,2026-10-31:667.28,2026-10-30:667.14,2026-10-29:667.84,2026-10-28:668.26,2026-10-27:668.29,2026-10-26:668.66,2026-10-25:668.86,2026-10-24:668.86,2026-10-23:668.76,2026-10-22:669.21,2026-10-21:669.23,2026-10-20:669.45,2026-10-19:669.76,2026-10-18:670.49,2026-10-17:670.49,2026-10-16:670.36,2026-10-15:670.85,2026-10-14:671.48,2026-10-13:670.89,2026-10-12:671.02,2026-10-11:671.11,2026-10-10:671.11,2026-10-09:671.02,2026-10-08:672.20,2026-10-07:672.14,2026-10-06:671.99,2026-10-05:672.44,2026-10-03:672.69,2026-10-02:672.69,2026-10-01:672.69,2026-09-30:672.59,2026-09-29:672.57,2026-09-28:672.75,2026-09-26:673.19,2026-09-25:673.19,2026-09-24:673.22,2026-09-23:672.93,2026-09-22:671.62,2026-09-21:671.16,2026-09-19:671.64,2026-09-18:671.67,2026-09-17:672.32,2026-09-16:672.26,2026-09-15:672.79,2026-09-14:672.58,2026-09-12:672.55,2026-09-11:672.45,2026-09-10:672.88,2026-09-09:672.44,2026-09-08:672.64,2026-09-07:672.73,2026-09-05:672.95,2026-09-04:672.83,2026-09-03:673.61,2026-09-02:673.55,2026-09-01:673.71,2026-08-31:673.61,2026-08-29:674.91,2026-08-28:674.65,2026-08-27:673.70,2026-08-26:673.92,2026-08-25:673.67,2026-08-24:673.85,2026-08-22:674.01,2026-08-21:673.84,2026-08-20:674.06,2026-08-19:674.57,2026-08-18:676.03,2026-08-17:675.69,2026-08-15:676.05,2026-08-14:675.86".split(",").forEach(x=>{const q=x.split(":");{const v=+(q[1]/100).toFixed(4),e=S.rates.find(r=>r.date===q[0]);if(!e)S.rates.push({date:q[0],rate:v,s:1});else if(e.s&&e.rate!==v)e.rate=v}});S.rates.sort((a,b)=>a.date.localeCompare(b.date));
+S.fxd=S.fxd||[];[["AUD","2026-10-17",4.6676],["AUD","2026-10-20",4.6910],["AUD","2026-11-06",4.6110],["NZD","2026-10-17",3.7977],["NZD","2026-10-20",3.8099],["NZD","2026-11-06",3.7227],["BRL","2026-10-09",1.3449],["BRL","2026-10-13",1.3394],["BRL","2026-11-03",1.2192]].forEach(x=>{const e=S.fxd.find(r=>r.cur===x[0]&&r.date===x[1]);if(!e)S.fxd.push({cur:x[0],date:x[1],rate:x[2],s:1});else if(e.s&&e.rate!==x[2])e.rate=x[2]});S.fxd.sort((a,b)=>a.date.localeCompare(b.date));
+if(!S.randPlants)S.randPlants=[{country:"巴西",plants:"421/431/791/1940/4238/2471/232/2007/1900/1751/847"},{country:"阿根廷",plants:"13/1113/1373"},{country:"乌拉圭",plants:"3/7/8/310"}];
+if(!S.amb)S.amb=[{name:"肋条",cands:"短肋条|胸部肋条|肩部肋条"}];
+if(!S.combos)S.combos=[{name:"件套",items:"前腱、板腱、嫩肩、保乐肩、胸肉、肩肉、肩胛、脖肉、上脑、肩部肋条或胸部肋条"},{name:"五切/六切/七切",items:"阿根廷或智利产品，一般包括前腱、后腱、龟腱、前躯、后躯、牛腩（六切）、肋排（七切）"},{name:"前后龟",items:"前腱、后腱、龟腱，或这三个产品的拼柜"},{name:"后四",items:"牛霖、大米龙、小米龙、去盖针扒"},{name:"后六",items:"后四的部位，再加后腱、龟腱"}];
+const DEF_RULES=[{inc:"件套",exc:"",std:"件套"},{inc:"缺失+牛前|缺失+牛后",exc:"",std:"牛前后"},{inc:"不带金钱腱",exc:"",std:"后腱龟腱不带金钱腱"},{inc:"西冷+眼肉",exc:"",std:"西冷眼肉"},{inc:"前后龟",exc:"",std:"前后龟"},{inc:"后四",exc:"",std:"后四"},{inc:"后六",exc:"",std:"后六"},{inc:"五切|5切",exc:"牛前",std:"五切"},{inc:"六切|6切",exc:"牛前",std:"六切"},{inc:"七切|7切",exc:"牛前",std:"七切"},{inc:"侧边+眼肉",exc:"",std:"西冷眼肉"},{country:"巴西",inc:"五切|六切|七切|八切|5切|6切|7切|8切",exc:"",std:"件套"}];
+if(!(S.rulesV>=3)){S.rules=(S.rules||[]).filter(r=>r.std!=="后腱龟不带金钱腱");DEF_RULES.forEach(x=>{if(!S.rules.some(r=>r.inc===x.inc&&r.std===x.std))S.rules.push({...x})});S.rulesV=3}
+if(!(S.rulesV>=4)){S.rules=S.rules||[];if(!S.rules.some(r=>r.inc==="侧边+眼肉"))S.rules.push({inc:"侧边+眼肉",exc:"",std:"西冷眼肉"});S.rulesV=4}
+if(!(S.rulesV>=5)){S.rules=S.rules||[];if(!S.rules.some(r=>r.country==="巴西"&&r.std==="件套"))S.rules.push({country:"巴西",inc:"五切|六切|七切|八切|5切|6切|7切|8切",exc:"",std:"件套"});S.rulesV=5}
+const DEF_COMBOS=[{name:"件套",items:"前腱、板腱、嫩肩、保乐肩、胸肉、肩肉、肩胛、脖肉、上脑、肩部肋条或胸部肋条"},{name:"五切/六切/七切",items:"阿根廷或智利产品，一般包括前腱、后腱、龟腱、前躯、后躯、牛腩（六切）、肋排（七切）"},{name:"前后龟",items:"前腱、后腱、龟腱，或这三个产品的拼柜"},{name:"后四",items:"牛霖、大米龙、小米龙、去盖针扒"},{name:"后六",items:"后四的部位，再加后腱、龟腱"}],DEF_AMB=[{name:"肋条",cands:"短肋条|胸部肋条|肩部肋条"}];
+if(S.defV!==1){S.combos=S.combos||[];DEF_COMBOS.forEach(x=>{if(!S.combos.some(r=>r.name===x.name))S.combos.push({...x})});S.amb=S.amb||[];DEF_AMB.forEach(x=>{if(!S.amb.some(r=>r.name===x.name))S.amb.push({...x})});S.defV=1}
+if(!S.plantPrefix)S.plantPrefix=[{country:"阿根廷",plant:"1085",prefix:"谷饲"}];
+if(!S.plantAlias)S.plantAlias=[{plant:"26",from:"大条",to:"粗修大米龙"}];
+if(!S.angusV){const f=s=>typeof s==="string"?s.replace(/安格斯\s*谷饲\s*\d+\s*天/g,"安格斯谷饲"):s;S.offers.forEach(r=>{r.product=f(r.product);r.pick=f(r.pick)});S.spot.forEach(r=>{r.product=f(r.product)});S.map.forEach(m=>{m.en=f(m.en);m.cn=f(m.cn);m.std=f(m.std)});(S.rules||[]).forEach(r=>{r.std=f(r.std)});S.angusV=1}
+S.sources.forEach(r=>{if(r.org==="MGAP"&&!r.content)r.content="活牛、活羊价格"});
+const LV=[["CN-MARA-pig-20260903", "2026-09-03", "中国", "猪", "活重", "11.59", "CNY", "公斤", "", "农业农村部畜牧兽医局 9月第1周（采集日9/3）全国生猪平均价"], ["CN-MARA-cattle-202608", "2026-08-31", "中国", "牛", "活重", "29.05", "CNY", "公斤", "", "农业农村部监测 8月集贸市场活牛月均价"], ["CN-MARA-sheep-202608", "2026-08-31", "中国", "羊", "活重", "31.91", "CNY", "公斤", "", "农业农村部监测 8月集贸市场活羊月均价"], ["AU-EYCI-20261009", "2026-10-09", "澳大利亚", "牛", "胴体", "9.0944", "AUD", "公斤", "4.6912", "MLA EYCI 909.44c/kg cwt；汇率取10/12中间价(近似)"], ["AU-NYCI-20261009", "2026-10-09", "澳大利亚", "牛", "活重", "4.8764", "AUD", "公斤", "4.6912", "MLA NYCI 487.64c/kg 活重；汇率取10/12中间价(近似)"], ["AU-LLI-20261009", "2026-10-09", "澳大利亚", "羊", "胴体", "10.7616", "AUD", "公斤", "4.6912", "MLA 轻羔羊指标 1076.16c/kg cwt；汇率取10/12中间价(近似)"], ["AU-HLI-20261009", "2026-10-09", "澳大利亚", "羊", "胴体", "11.0385", "AUD", "公斤", "4.6912", "MLA 重羔羊指标 1103.85c/kg cwt；汇率取10/12中间价(近似)"], ["BR-CEPEA-20261009", "2026-10-09", "巴西", "牛", "胴体", "377.80", "BRL", "阿罗瓦(15kg)", "1.3449", "CEPEA/ESALQ 圣保罗州肥牛指标 R$/@(15kg胴体)；汇率=美元现汇取出6.7102÷BCB PTAX 4.9892"], ["BR-CEPEA-pig-20260921", "2026-09-21", "巴西", "猪", "活重", "5.13", "BRL", "公斤", "1.3131", "CEPEA 活猪(SP) R$/kg；汇率按 9月PTAX均值5.1114折算(近似)"], ["AR-MAG-20260804", "2026-08-04", "阿根廷", "牛", "活重", "4377.693", "ARS", "公斤", "", "MAG Cañuelas 牛指数(Índice Novillo) ARS/kg活重；缺比索汇率"], ["NZ-ISCH-beef-20260810", "2026-08-10", "新西兰", "牛", "胴体", "9.83", "NZD", "公斤", "", "interest.co.nz 加工厂报价均值 北岛P2阉牛 983c/kg；缺新西兰元汇率"], ["NZ-ISCH-lamb-20260810", "2026-08-10", "新西兰", "羊", "胴体", "11.77", "NZD", "公斤", "", "interest.co.nz 北岛17.5kg羔羊每头206新西兰元(含羊毛皮)折算每公斤；缺新西兰元汇率"], ["BR-CEPEA-20261013", "2026-10-13", "巴西", "牛", "胴体", "378.00", "BRL", "阿罗瓦(15kg)", "1.3394", "CEPEA/ESALQ 圣保罗肥牛指标 R$/@(15kg胴体)；汇率=美元现汇卖出6.7089÷PTAX 5.0090"], ["BR-CEPEA-20261103", "2026-11-03", "巴西", "牛", "胴体", "71.10", "USD", "阿罗瓦(15kg)", "", "CEPEA/ESALQ 圣保罗肥牛指标 R$390.00/@(15kg胴体)，按 CEPEA 公布的美元价 US$71.10/@ 录入"], ["BR-CEPEA-pig-20261103", "2026-11-03", "巴西", "猪", "活重", "6.71", "BRL", "公斤", "1.2192", "CEPEA 活猪(SP) R$/kg；汇率=美元现汇卖出价6.6874÷(390÷71.10)，按 CEPEA 牛价的美元折算推算(近似)"]];LV.forEach(x=>{const o={id:"s"+x[0],key:x[0],date:x[1],country:x[2],species:x[3],kind:x[4],price:x[5],cur:x[6],unit:x[7],fx:x[8],source:x[9],note:"",s:1},e=S.live.find(r=>r.key===x[0]);if(!e)S.live.push(o);else if(e.s)Object.assign(e,o)});
+
+let READY=false,INCLOUD=false,BKPEND=false,BKNEXT=0,BKPW="";
+const save=()=>{if(READY&&!INCLOUD)BKPEND=true;try{localStorage.setItem("baopan_v1",JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const HG=["林霖淋临琳麟邻","腱建健键见剑舰渐践","板版","腩","胛甲钾","脊几己挤","里理礼李鲤","肋泪类累","条调","肩尖坚间兼煎","眼演","胸凶兄","脖博驳","骨谷股鼓","尾伟纬","肚度渡杜","舌蛇","心新辛","肝干甘","盖概","针真珍","扒趴爬","龟归规","保宝饱","嫩","前钱","后厚候","背辈被","子紫","羊洋阳杨","排牌","上尚","脑恼","肠长常","金筋斤今津","脂支枝织知","肪房防","小晓","腹富副","霖"],HM={};
+HG.forEach(g=>[...g].forEach(c=>{if(!HM[c])HM[c]=g[0]}));
+const canon=s=>[...String(s||"").toLowerCase()].map(c=>HM[c]||c).join("");
+const pn=r=>{const p=String(r.product||""),s=String(r.spec||"");return s&&!p.includes(s)?p+" "+s:p};
+const nkey=s=>{s=String(s||"").toLowerCase().replace(/[vc]l/g,"").replace(/[\s\-_/()（）]/g,"");return canon(s.replace(/\d+(?:\.\d+)?/g,""))+"|"+(s.match(/\d+(?:\.\d+)?/g)||[]).sort().join(",")};
+const CONFP=[[/谷饲/,/草饲/],[/粗修/,/精修/],[/带盖/,/去盖/],[/带脂/,/去脂/],[/带骨/,/去骨|无骨|不带骨/]];
+const conf=(t,c)=>{c=String(c||"");return CONFP.some(([a,b])=>(a.test(t)&&!b.test(t)&&b.test(c)&&!a.test(c))||(b.test(t)&&!a.test(t)&&a.test(c)&&!b.test(c)))};
+const gnum=s=>[...String(s||"").matchAll(/(?<![\d.])([4-9]\d)(?![\d.])/g)].map(x=>x[1]).sort().join(",");
+const gconf=(t,c)=>{const a=gnum(t),b=gnum(c);return !!(a&&b&&a!==b)};
+function stdName0(p){const t=String(p||"").trim().toLowerCase();if(!t)return"";
+for(const m of S.map){if([m.en,m.cn,m.std].some(v=>v&&v.toLowerCase()===t))return m.std}
+{const am=t.match(/^安格斯\s*谷饲(?:\s*\d+\s*天)?/);if(am){const rest=t.slice(am[0].length).trim();if(rest){const b=stdName0(rest);return b?"安格斯谷饲"+b:""}}}
+for(const r of(S.rules||[])){if(!r.std||!r.inc||r.country)continue;const ex=String(r.exc||"").split(/[+|]/).filter(Boolean);if(ex.some(w=>t.includes(w.toLowerCase())))continue;if(String(r.inc).split("|").some(g=>g.split("+").filter(Boolean).every(w=>t.includes(w.toLowerCase()))))return r.std}
+if(/\d/.test(t)){const nk=nkey(t),hit=new Set();for(const m of S.map)for(const v of[m.en,m.cn,m.std])if(v&&/\d/.test(v)&&nkey(v)===nk&&!conf(t,v)&&!conf(t,m.std))hit.add(m.std);if(hit.size==1)return[...hit][0]}
+const ct=canon(t),eq=new Set();
+for(const m of S.map)for(const v of[m.en,m.cn,m.std])if(v&&canon(v)===ct)eq.add(m.std);
+if(eq.size==1)return[...eq][0];if(eq.size>1)return"";
+let b=null;
+for(const m of S.map)for(const v of[m.en,m.cn,m.std]){if(!v||v.length<2)continue;const cv=canon(v),pos=ct.indexOf(cv);if(pos<0)continue;if(conf(t,v)||conf(t,m.std)||gconf(t,v)||gconf(t,m.std))continue;if(pos>0&&"内外前后大小上下中".includes(ct[pos-1]))continue;if(!b||pos<b.pos||(pos==b.pos&&cv.length>b.len))b={pos,len:cv.length,std:m.std}}
+return b?b.std:""}
+const SN=new Map();
+function stdName(p){const k=String(p==null?"":p);if(SN.has(k))return SN.get(k);let v=stdName0(k);const fm=k.trim().match(/^(谷饲|草饲)\s*(.+)$/);if(fm&&!(v&&v.includes(fm[1]))){const b=stdName0(fm[2].trim());if(b)v=fm[1]+b}SN.set(k,v);return v}
+function enrichS(rows){enrich(rows);rows.forEach(r=>{const s=stdOf(r);if(s)r.product=s});return rows}
+function calc(r){const p0=parseFloat(r.price);if(r.cur==="RMB"&&p0>0)return Math.round(p0/100)*100;const t=taxFor(r.country),p=parseFloat(r.price);if(!t||!(p>0))return"";const base=r.cur==="USD"?p*(rateInfo(r.date).rate+fxAdd()):p;return Math.round((base*(1+(t.duty+(t.extra||0))/100)*(1+t.vat/100)+(S.addon==null?500:S.addon))/100)*100}
+function check(r,all){const e=[],w=[];const p=parseFloat(r.price),q=parseFloat(r.qty);
+if(!r.product)e.push("缺产品");else if(!stdOf(r))w.push("产品未对应");{const q=ambOf(r);if(q&&q.kind==="ask")w.push("名称易混淆，请选择实际产品")}if(S.tax.length&&r.country&&!taxFor(r.country))w.push("无该国税率");
+if(!(p>0))e.push("缺价格");
+if(!r.country)w.push("缺国家");if(!r.plant)w.push("缺厂号");else if(S.factories.length&&plantsOf(r.plant).length&&!plantsOf(r.plant).some(p=>S.factories.some(f=>f.plant==p)))w.push("厂号不在名录");
+if(r.qty!==""&&!(q>0))w.push("数量异常");
+if(r.cur==="USD"&&rateInfo(r.date).src==="default")w.push("无汇率表，用默认汇率");
+if(r.pay&&!(parseFloat(r.pay)>=0&&parseFloat(r.pay)<=100))w.push("首付比例异常");
+if(p>0){const cd=(pidx(all).get(pkey(r))||[]).filter(o=>o.cur===r.cur&&o.price>0);let bs=cd.filter(o=>near(o,r,180)).map(o=>+o.price).sort((a,b)=>a-b);if(bs.length<3)bs=cd.filter(o=>near(o,r,180,1)).map(o=>+o.price).sort((a,b)=>a-b);
+if(bs.length>=3){const md=bs[bs.length>>1];if((p>=md*2.5||p<=md/2.5))w.push("价格异常：近半年同类中位价约"+Math.round(md)+"，相差"+Math.round((p/md-1)*100)+"%")}
+else{const u=r.cur==="USD";if((u&&(p<500||p>20000))||(!u&&(p<10000||p>100000)))w.push("价格量级可疑")}
+if((pidx(all).get(pkey(r))||[]).some(o=>dupO(o,r)))w.push("疑似重复")}
+return{e,w}}
+const CN2={"巴西":["巴西","brazil","brasil"],"阿根廷":["阿根廷","阿根挺","argentina"],"乌拉圭":["乌拉圭","uruguay"],"巴拉圭":["巴拉圭","paraguay"],"澳大利亚":["澳大利亚","澳洲","australia"],"新西兰":["新西兰","new zealand","nz"],"美国":["美国","usa","united states"],"加拿大":["加拿大","canada"],"智利":["智利","chile"],"玻利维亚":["玻利维亚","bolivia"],"哥斯达黎加":["哥斯达黎加","costa rica"],"墨西哥":["墨西哥","mexico"],"西班牙":["西班牙","spain"],"德国":["德国","germany"],"波兰":["波兰","poland"],"爱尔兰":["爱尔兰","ireland"],"法国":["法国","france"],"荷兰":["荷兰","netherlands"],"乌克兰":["乌克兰","ukraine"],"俄罗斯":["俄罗斯","russia"],"哥伦比亚":["哥伦比亚","colombia"],"尼加拉瓜":["尼加拉瓜","nicaragua"],"巴拿马":["巴拿马","panama"],"白俄罗斯":["白俄罗斯","belarus"],"中国":["中国","china"],"欧洲":["欧洲","europe","欧盟"]};
+const PR=[[/striploin|sirloin|外脊|西冷/i,"牛外脊"],[/ribeye|rib eye|cube roll|肉眼/i,"牛肉眼"],[/tenderloin|fillet|里脊/i,"牛里脊"],[/brisket|牛腩/i,"牛腩"],[/shank|牛腱|腱子/i,"牛腱"],[/chuck roll|肩肉/i,"牛肩肉"],[/knuckle|牛霖/i,"牛霖"],[/topside|和尚头/i,"和尚头"],[/rump|臀肉/i,"牛臀肉"],[/short rib|小排/i,"牛小排"],[/tongue|牛舌/i,"牛舌"],[/tripe|牛肚/i,"牛肚"],[/oxtail|牛尾/i,"牛尾"],[/trimming|碎肉/i,"牛碎肉"],[/lamb|mutton|羊肉/i,"羊肉"],[/pork|猪肉/i,"猪肉"]];
+const BR=/\b(JBS|Marfrig|Minerva|Swift|Friboi|Seara|Cargill|Tyson|Teys|Kilcoy|AACo|Greenham|Silver Fern|Alliance|ANZCO|Frigol|Mercosul|Pamplona|Frisa|Quickfood|Breeders|Colonial|Naturafrig|Rondon|Excelencia|Athena|Bertin)\b/i;
+function ctry0(s){const l=String(s||"").toLowerCase();for(const k in CN2)for(const a of CN2[k]){if(/^[a-z. ]+$/.test(a)){if(new RegExp("(^|[^a-z])"+a.replace(/\./g,"\\.")+"([^a-z]|$)","i").test(l))return k}else if(l.includes(a))return k}return""}
+function ctry(s){const k=String(s||"");let v=CC.get(k);if(v===undefined){v=ctry0(k);CC.set(k,v)}return v}
+function prod(L){let s=stdName(L);if(s)return s;for(const p of PR)if(p[0].test(L))return stdName(p[1])||p[1];const m=L.match(/[\u4e00-\u9fa5]{0,3}(?:牛|羊|猪)[\u4e00-\u9fa5]{1,4}/);return m?m[0]:""}
+function ext(L){const r={};let s=L;
+const dm=s.match(/(20\d\d)\s*[-\/.年]\s*(\d{1,2})\s*[-\/.月]\s*(\d{1,2})/);
+if(dm){r.date=`${dm[1]}-${dm[2].padStart(2,"0")}-${dm[3].padStart(2,"0")}`;s=s.replace(dm[0]," ")}
+else{const d2=s.match(/(\d{1,2})月(\d{1,2})[日号]/);if(d2){r.date=`${new Date().getFullYear()}-${d2[1].padStart(2,"0")}-${d2[2].padStart(2,"0")}`;s=s.replace(d2[0]," ")}}
+r.country=ctry(s);const bm=s.match(/(?:品牌|brand)\s*[:：]?\s*([A-Za-z0-9\u4e00-\u9fa5&]+)/i)||s.match(BR);if(bm)r.brand=bm[1];
+let pm=s.match(/(?:est\.?|sif|sie|spe|sisa|tg|plant|factory|厂号|工厂|厂)\s*[:：#.\-]?\s*(\d{1,5})/i)||s.match(/(\d{1,5})\s*厂/);if(pm){r.plant=pm[1];s=s.replace(pm[0]," ")}
+let qm=s.match(/柜数\s*[:：]?\s*(\d+)/)||s.match(/(\d+)\s*个?\s*(?:柜|cntrs?|containers?|fcl|[x*×]\s*40)/i);if(qm){r.qty=qm[1];s=s.replace(qm[0]," ")}
+let sm=s.match(/(?:ETD|ETA|船期|装船|发货|shipment|shipping|ship)\s*[:：]?\s*([A-Za-z]{3,9}\.?\s*\d{0,2}|\d{1,2}\s*月\s*[上中下]?旬?|\d{1,2}[\/.-]\d{1,2}|[一二三四五六七八九十]+月[上中下]?旬?|即期|现货)/i)||s.match(/(\d{1,2}月[上中下]旬|\d{1,2}月[底初中])/);if(sm){r.ship=sm[1].trim();s=s.replace(sm[0]," ")}
+const ps=s.replace(/,(?=\d{3})/g,"");const isR=x=>/rmb|cny|人民币|¥|￥|元/i.test(x);let p;
+if(p=ps.match(/(US\$|\$|USD|美金|美元|RMB|CNY|人民币|¥|￥)?\s*(\d+(?:\.\d+)?)\s*(?:元|USD|RMB)?\s*(?:\/|per|每)\s*(?:kg|公斤|千克)/i)){r.price=String(Math.round(+p[2]*1000));r.cur=isR(p[0])?"RMB":"USD"}
+else if(p=ps.match(/(US\$|\$|USD|美金|美元|RMB|CNY|人民币|¥|￥)\s*(\d{3,6}(?:\.\d+)?)/i)){r.price=p[2];r.cur=isR(p[1])?"RMB":"USD"}
+else if(p=ps.match(/(\d{3,6}(?:\.\d+)?)\s*(USD|美金|美元|RMB|CNY|人民币|元)/i)){r.price=p[1];r.cur=isR(p[2])?"RMB":"USD"}
+else if(p=ps.match(/(\d{3,6}(?:\.\d+)?)\s*\/\s*(?:mt|ton|t\b|吨)/i)){r.price=p[1];r.cur=+p[1]>=10000?"RMB":"USD"}
+else if(p=ps.match(/(?<![\d.])(\d{4,6})(?![\d.])/)){r.price=p[1];r.cur=+p[1]>=10000?"RMB":"USD"}
+const sp=[];for(const re of [/\d+(?:\.\d+)?\s*(?:kg|公斤)\s*[\/*x]?\s*\d*\s*(?:ctn|箱)?/i,/choice|prime|select|grain[- ]?fed|grass[- ]?fed|谷饲|草饲|MSA/i,/\d+\s*(?:days|day|天)(?!\s*内)/i,/bone[- ]?in|boneless|带骨|去骨|无骨/i]){const m=L.match(re);if(m)sp.push(m[0].trim())}r.spec=sp.join(" ");
+r.product=prod(L);return r}
+let SK=[];
+const PRE=/安格斯\s*谷饲(?:\s*\d+\s*天)?/;
+const KW=["大米龙","小米龙","米龙","针扒","针趴","牛霖","大条","小条","黄瓜条","牛腩","肩峰","眼肉","西冷","龟腱","后腱","前腱","肋条","脖肉","胸肉","上脑","嫩肩","保乐肩","板腱","碎肉","里脊","外脊"];
+function ruleHit(t){t=String(t).toLowerCase();return(S.rules||[]).some(r=>{if(!r.std||!r.inc)return false;const ex=String(r.exc||"").split(/[+|]/).filter(Boolean);if(ex.some(w=>t.includes(w.toLowerCase())))return false;return String(r.inc).split("|").some(g=>g.split("+").filter(Boolean).every(w=>t.includes(w.toLowerCase())))})}
+function segK(s,K){if(!s)return[];for(const k of K){if(s.startsWith(k)){const r=segK(s.slice(k.length),K);if(r)return[k,...r]}}return null}
+function splitMulti(name){const base=String(name||"").trim();if(!base||ruleHit(base)||S.map.some(m=>m.cn===base||m.std===base))return[base];
+const K=[...new Set([...KW,...S.map.flatMap(m=>[m.cn,m.std]).filter(x=>x&&x.length>=2&&x.length<=6)])].sort((a,b)=>b.length-a.length);
+const parts=base.split(/[\/、]/).map(s=>s.trim()).filter(Boolean),out=[];
+if(parts.length>1){for(const q of parts){const sg=segK(q,K);if(!sg)return[base];out.push(...sg)}}else{const sg=segK(base,K);if(!sg||sg.length<2)return[base];out.push(...sg)}
+return out.length>1?[...new Set(out)]:[base]}
+function normPl(raw,country){return String(raw).replace(/\s/g,"").split(/[\/、]/).flatMap(tk=>tk.includes("-")&&(country==="智利"||S.factories.some(f=>f.plant===tk))?[tk]:tk.split("-")).join("/")}
+function ctryAll(l){const o=[],s=String(l).toLowerCase();for(const k in CN2)if(CN2[k].some(a=>/^[a-z. ]+$/.test(a)?new RegExp("(^|[^a-z])"+a.replace(/\./g,"\\.")+"([^a-z]|$)","i").test(s):s.includes(a)))o.push(k);return o}
+function jbsPlants(k){return[...new Set(S.factories.filter(f=>(/jbs/i.test(f.brand||"")||/jbs/i.test(f.group||""))&&(!f.country||f.country===k)).map(f=>f.plant))].join("/")}
+function parseBlocks(t){SK=[];if(!/直采|所有厂|单价美元|付款|美[利丽]华/.test(t)&&!/jbs/i.test(t))return[];const sup=/美[利丽]华/.test(t),jbs=/jbs/i.test(t);
+const rows=[];const fresh=d=>({date:d,country:"",brand:"",plant:"",ship:"",term:"",pay:"",cur:"USD",pin:"",rand:"",pre:"",gp:""});let c=fresh(today()),bs=0;
+const num=x=>/^\$?\s*\d{3,5}$/.test(x);
+const done=(it)=>{let n=it.name,plant="",qty=it.qty||"",sp=[];
+let m=n.match(/[（(]\s*(\d{1,4}(?:\s*[\/、,，\-]\s*\d{1,4})+|\d{3,4})\s*[）)]/);if(m){plant=m[1].replace(/\s/g,"");n=n.replace(m[0],"")}
+{if(/整柜/.test(n)){if(!qty)qty="1柜";n=n.replace(/整柜/g," ")}
+n=n.replace(/(\d{2,6}(?:\.\d+)?)\s*kg(?![+\-以])/ig,(m,a)=>{if(+a>=50){if(!qty)qty=+(a/1000).toFixed(3)+"吨";return" "}return m});
+const qs=[...n.matchAll(/(\d+(?:\.\d+)?(?:\s*[-~]\s*\d+(?:\.\d+)?)?)\s*(柜|吨|mt)/gi)];if(qs.length){if(!qty){const q=qs[qs.length-1];qty=q[1].replace(/\s/g,"")+(q[2]=="柜"?"柜":"吨")}n=n.replace(/(\d+(?:\.\d+)?(?:\s*[-~]\s*\d+(?:\.\d+)?)?)\s*(柜|吨|mt)/gi," ")}}
+m=n.match(/^\s*\d+\/\d+\/\d+\s*/);if(m){sp.push(m[0].trim());n=n.replace(m[0],"")}
+n=n.replace(/[（(]\s*(\d{1,3}\s*\/\s*\d{1,3})\s*[）)]/g,(m,a)=>{sp.push(a.replace(/\s/g,""));return""});
+n=n.replace(/(?<![\d.])(\d{3})\s*([+\-])(?!\d)/,(m,a,b)=>{sp.push(a+b);return" "});
+n=n.replace(/规格\s*(\d+(?:\.\d+)?\s*[+\-]?)/,(m,a)=>{sp.push(a.replace(/\s/g,""));return" "});
+n=n.replace(/规格/g," ");
+n=n.replace(/(碎肉)\s*(\d{2})(?![\d.吨柜]|kg|mt|\s*[VC]L)/i,(m,a,d)=>{if(+d>=40&&+d<=99){sp.push(d+"VL");return a}return m});
+n=n.replace(/(?<![\d.])(\d{2})\s*(碎肉)/,(m,d,a)=>{if(+d>=40&&+d<=99){sp.push(d+"VL");return a}return m});
+n=n.replace(/\d{2,3}\s*[VC]L(?:-Z)?/ig,x=>{sp.push(x.replace(/\s/g,"").toUpperCase());return""});
+n=n.replace(/[（(]?\s*\d+(?:\.\d+)?\s*(?:kg|公斤)\s*(?:以上|以下|\+|-)?\s*[）)]?/ig,x=>{sp.push(x.replace(/[（()）\s]/g,""));return""});
+n=n.replace(/[（(]\s*真空\s*[）)]|真空/g,()=>{sp.push("真空");return""});
+n=n.replace(/\s*\+\s*/g,"+").replace(/[（(]\s*[）)]/g,"").replace(/^[\s，,、\-:：]+|[\s，,、\-:：]+$/g,"");
+const note=[c.term,c.pin,c.rand].filter(Boolean).join(" ");
+let base0=(n||it.name).replace(/^(.*骨)\s*带肉$/,"$1");const pm1=base0.match(PRE);if(pm1){c.pre="安格斯谷饲";base0=base0.replace(PRE,"安格斯谷饲")}
+for(const ct of(c.multi&&c.multi.length>1?c.multi:[""])){const pl0=ct?(((S.randPlants||[]).find(x=>x.country===ct)||{}).plants||"所有厂(随机)"):(plant||c.plant),pls=String(pl0).split("/");
+for(const pn_ of splitMulti(base0))rows.push({date:c.date,country:ct||c.country,brand:c.brand,plant:pl0,product:(()=>{const al=(S.plantAlias||[]).find(a=>pls.includes(String(a.plant))&&a.from===pn_);let nm=al?al.to:pn_;const pp=(S.plantPrefix||[]).find(a=>a.prefix&&pls.includes(String(a.plant))&&(!a.country||!c.country||a.country===c.country));if(pp&&!nm.includes(pp.prefix))nm=pp.prefix+nm;return pm1||!c.pre?nm:(nm.includes(c.pre)?nm:c.pre+nm)})(),spec:sp.join(" "),ship:c.ship,qty,cur:it.cur||c.cur,price:((it.cur||c.cur)==="RMB"&&parseFloat(it.price)>0)?String(Math.round(parseFloat(it.price)/100)*100):it.price,pay:c.pay?c.pay.split("/")[0]+"%":"",note,rand:ct?true:!!c.rand&&!plant})}};
+const flushGp=()=>{if(c.gp&&c.gpRow&&!c.gpUsed)done({name:c.gpRow,price:c.gp,qty:""});c.gp="";c.gpRow=null;c.gpUsed=false};
+for(const raw of t.split(/\r?\n/)){const line=raw.replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu,"").replace(/＄/g,"$").replace(/／/g,"/").replace(/％/g,"%").replace(/＋/g,"+").replace(/[。！!]+\s*$/,"").replace(/(\d),(?=\d{3}(?!\d))/g,"$1").replace(/(\d)\.0{1,2}(?!\d)/g,"$1").replace(/(\d)\s*\$\s*$/,"$1").trim();if(!line){flushGp();c.pin="";if(c.preGrp){c.pre="";c.preGrp=false}continue}
+if(/美[利丽]华|期货报盘/.test(line)&&!/\$|\d{4}|直采|船期|付款|即付/.test(line.replace(/第\d+周期?/,""))){continue}
+let m=line.match(/^(20\d\d)[.\-\/年](\d{1,2})[.\-\/月](\d{1,2})[日号]?$/);
+if(m){flushGp();c=fresh(`${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`);continue}
+{const gm=line.match(/拼柜.*?(\d{3,5})\s*$/);if(gm&&!/(?:sif|est\.?|厂号)\s*\d+\s*$/i.test(line)&&!/\d{1,4}\s*厂\s*\d*\s*$/.test(line)){flushGp();c.gp=gm[1];c.gpRow=line.replace(/\s*\d{3,5}\s*$/,"").trim();c.gpUsed=false;c.pin=c.gpRow;{const f1=line.match(/(谷饲|草饲)\s*拼柜/);if(f1&&!PRE.test(line)){c.pre=f1[1];c.preGrp=true}}c.plant=c.plant0||c.plant;c.rand=c.rand0||c.rand;continue}}
+{const pm0=line.match(PRE);if(pm0&&/拼柜/.test(line)&&!/\d{3,5}\s*$/.test(line)){flushGp();c.pre="安格斯谷饲";c.pin=line.replace(PRE,"").trim()||"拼柜";c.plant=c.plant0||c.plant;c.rand=c.rand0||c.rand;continue}}
+if(/^(?:\d+\s*柜\s*)?\d*\s*拼柜/.test(line)){flushGp();if(c.preGrp){c.pre="";c.preGrp=false}const pp=line.match(/(?:sif|est\.?|厂号)\s*[:：]?\s*(\d{1,4})|(\d{1,4})\s*厂/i);c.pin=line.replace(/[:：]/g,"").replace(/(?:sif|est\.?|厂号)\s*[:：]?\s*\d{1,4}|\d{1,4}\s*厂/ig,"").trim();if(pp){c.plant=pp[1]||pp[2];c.rand=""}else{c.plant=c.plant0||c.plant;c.rand=c.rand0||c.rand}continue}
+{const fm0=line.match(/(谷饲|草饲)\s*拼柜/);if(fm0&&!/\d{3,5}\s*$/.test(line)){flushGp();c.pre=fm0[1];c.preGrp=true;c.pin=line;c.plant=c.plant0||c.plant;c.rand=c.rand0||c.rand;continue}}
+if(/拼柜/.test(line)&&!/\d{3,5}\s*$/.test(line)){flushGp();if(c.preGrp){c.pre="";c.preGrp=false}c.pin=line;c.plant=c.plant0||c.plant;c.rand=c.rand0||c.rand;continue}
+const pl2=line.match(/^(\d{1,5}(?:-\d{1,5})?)\s*厂$/)||line.match(/^(?:sif|est\.?)\s*(\d{1,4})$/i);if(pl2){c.plant=pl2[1];c.rand="";continue}
+if(/直采|船期|付款|CFR|CIF|FOB|单价美元|所有厂/.test(line)||(ctry(line)&&/\d{1,5}\s*(?:[\/、\-]\s*\d{1,5})*\s*工?厂/.test(line))){flushGp();
+const k=ctry(line),newBlk=!!(k||/直采/.test(line));if(newBlk){c=Object.assign(fresh(c.date),{country:k||c.country,cur:c.cur});bs=rows.length;const ca=ctryAll(line);c.multi=ca.length>1&&/随机/.test(line)?ca:null}
+const pm3=line.match(/([A-Za-z]{1,6})\s*(\d{1,5}(?:\s*[\/、\-]\s*\d{1,5})+)/);
+const pm=line.match(/(?:([A-Za-z]{1,6})\s*[（(]?\s*)?(\d{1,5}(?:\s*[\/、\-]\s*\d{1,5})*)\s*[）)]?\s*工?厂/);
+if(pm){c.plant=normPl(pm[2],c.country);{const par=line.match(/(\d{1,4})\s*(?:厂\s*)?旗下/);if(par)c.plant=par[1]+"/"+c.plant}if(pm[1]&&!/^(CFR|CIF|FOB|TT|BRZ|URU|ARG|COL)$/i.test(pm[1]))c.brand=pm[1]}else if(pm3&&!/^(CFR|CIF|FOB|TT|USD|RMB|SIF|EST)$/i.test(pm3[1])){c.plant=normPl(pm3[2],c.country);if(!c.brand)c.brand=pm3[1]}else if(/所有厂/.test(line)){const am=line.match(/所有厂\s*随机\s*(\d{1,4}(?:\s*[\/、\-]\s*\d{1,4})*)(?![\d月\/、\-])/);c.plant=am?normPl(am[1],c.country):(((S.randPlants||[]).find(x=>x.country===c.country)||{}).plants||"所有厂(随机)");c.rand="所有厂随机"}else if(jbs&&k&&jbsPlants(k)){c.plant=jbsPlants(k);c.rand="JBS所有工厂";if(!c.brand)c.brand="JBS"}else if(sup&&k){const d=(S.randPlants||[]).find(x=>x.country===k);if(d){c.plant=d.plants;c.rand="所有厂随机"}}
+{const hm=line.match(/工?厂\s*([\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z ]*?)\s*\d{1,2}(?:\s*[\/、\-]\s*\d{1,2})*\s*月/);if(hm&&!/船期|报盘|直采|付款|预付|单价/.test(hm[1])&&hm[1].trim().length>=2)c.hp=hm[1].trim()}
+const sm=line.match(/(\d{1,2}(?:\s*[\/、\-]\s*\d{1,2})*)\s*月/);if(sm)c.ship=sm[1].replace(/\s/g,"")+"月";
+const tm=line.match(/CFR|CIF|FOB/i);if(tm)c.term=tm[0].toUpperCase();
+const py=line.match(/(\d{1,3}\/\d{1,3})\s*%?\s*(?:TT|即付|单价|付款|$)/);if(py)c.pay=py[1];else{const pp=line.match(/(?:预付款?|首付|定金)\s*[:：]?\s*(\d{1,3})/)||line.match(/(?<![\d.])(\d{1,3})\s*%/);if(pp)c.pay=pp[1]}
+if(/人民币|RMB/i.test(line))c.cur="RMB";if(!newBlk){for(let i=bs;i<rows.length;i++){const q=rows[i];if(c.ship&&(!q.ship||sm))q.ship=c.ship;if(!q.pay&&c.pay)q.pay=c.pay.split("/")[0]+"%";if(c.term&&!String(q.note).includes(c.term))q.note=(c.term+" "+q.note).trim()}}c.plant0=c.plant;c.rand0=c.rand;{const it2=line.match(/[，,]\s*([^，,]+?)\s*(\d+(?:\.\d+)?)\s*(柜|吨)\s*(\d{4,6})\s*元/);if(it2)done({name:it2[1],price:it2[4],qty:it2[2]+it2[3],cur:"RMB"})}continue}
+{const rm=line.match(/^(?:(\d+(?:\.\d+)?)\s*(柜|吨))?\s*(.+?)[，,]?\s*(?:人民币签约|人民币)?\s*(\d{4,6})\s*元\s*(?:\/\s*吨)?\s*$/);if(rm&&rm[3].trim()&&!/^[\d.]+$/.test(rm[3].trim())){done({name:rm[3].replace(/[，,]\s*$/,"").trim(),price:rm[4],qty:rm[1]?rm[1]+rm[2]:"",cur:"RMB"});continue}}
+{const km=line.match(/^(.*?)\s*(\d{2,6}(?:\.\d+)?)\s*kg\s+(\d+(?:\.\d+)?)\s*(?:美元|美金|\$|USD)(?:\s*\/?\s*kg)?\s*$/i);if(km&&km[1].trim()){const pv=parseFloat(km[3]);done({name:km[1].trim(),price:String(pv<200?Math.round(pv*1000):Math.round(pv)),qty:+(parseFloat(km[2])/1000).toFixed(3)+"吨"});continue}}
+{const qm=line.match(/^(\d+(?:\.\d+)?(?:\s*\/\s*\d+)?\s*(?:柜|吨|mt))\s*[，,]\s*(.+?)\s*[，,]\s*(\d{3,5})\s*(?:美元|美金|\$|USD)?\s*$/i);if(qm){done({name:qm[2],price:qm[3],qty:qm[1].replace(/\s/g,"").replace(/mt$/i,"吨")});continue}}
+{const qh=line.match(/^(\d+(?:\.\d+)?(?:\s*\/\s*\d+)?\s*(?:柜|吨|mt))\s*[，,]\s*(\d{3,5})\s*(?:美元|美金|\$|USD)?\s*$/i);if(qh&&c.hp){done({name:c.hp,price:qh[2],qty:qh[1].replace(/\s/g,"").replace(/mt$/i,"吨")});continue}}
+{const pm2=line.match(/^(.+?)[,，]\s*((?:\$?\s*\d{3,5}\s*[,，]\s*)+\$?\s*\d{3,5})\s*$/);if(pm2){const nms=pm2[1].split(/[+＋\/、]/).map(s=>s.trim()).filter(Boolean),prs=[...pm2[2].matchAll(/\d{3,5}/g)].map(x=>x[0]);if(nms.length>1&&nms.length===prs.length){nms.forEach((nm,i)=>done({name:nm,price:prs[i],qty:""}));continue}}}
+if(c.gp&&!/\d{3,5}\s*$/.test(line)){let nm=line,q="";const lm=nm.match(/^(\d+(?:\.\d+)?)\s*(?![吨柜mM])(?=[\u4e00-\u9fa5])/);if(lm&&+lm[1]<=60){q=lm[1]+"吨";nm=nm.slice(lm[0].length)}c.gpUsed=true;done({name:nm,price:c.gp,qty:q});continue}
+const segs=line.split(/\t+|\s{2,}/).map(s=>s.trim()).filter(Boolean);let cur=null;
+for(const s of segs){
+if(/^\d+(?:\.\d+)?(?:\s*[-~]\s*\d+(?:\.\d+)?)?\s*(?:柜|吨|mt)$/i.test(s)){if(cur)cur.qty=s.replace(/\s/g,"").replace(/mt$/i,"吨");continue}
+if(num(s)){if(cur&&cur.name){cur.price=s.replace(/\D/g,"");done(cur);cur=null}continue}
+const tp=s.match(/^(.*?[^\d\s$.,])\s*\$?\s*(\d{3,5})$/);
+if(tp){if(cur&&cur.name&&!cur.price)SK.push(cur.name);done({name:tp[1],price:tp[2],qty:""});cur=null;continue}
+if(cur&&cur.name&&!cur.price)SK.push(cur.name);cur={name:s,qty:"",price:""}}
+if(cur&&cur.name&&!cur.price)SK.push(line)}
+flushGp();return rows}
+function stdAll(){D.forEach(r=>{const s=stdOf(r);if(s)r.product=s});msg="已把能对应上的产品名改成标准名称。";render()}
+function addUnm(){const s=new Set();D.forEach(r=>{if(r.product&&!stdOf(r))s.add(pn(r))});s.forEach(p=>S.map.push({en:"",cn:p,std:p}));SN.clear();save();msg=`已把 ${s.size} 个产品加入对应表（标准名称暂同原名，可导出对应表后改成你们的标准名称再导入）。`;render()}
+function parseText(t){const R=parseBlocks(t);if(R.length)return R;SK=[];const lines=t.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>1);const rows=[];const ctx={date:(ext(t).date)||today(),country:"",brand:"",plant:"",ship:"",product:""};let hdr=null,hcur="";
+const KM=[[/日期|date/i,"date"],[/国家|country|origin/i,"country"],[/品牌|brand/i,"brand"],[/厂|plant|est|sif/i,"plant"],[/产品|品名|product|description|item/i,"product"],[/规格|spec/i,"spec"],[/船期|etd|ship/i,"ship"],[/柜|container|qty|quantity/i,"qty"],[/价|price|usd|rmb/i,"price"],[/备注|note|remark/i,"note"]];
+const mk=c=>{for(const k of KM)if(k[0].test(c))return k[1];return""};
+for(const line of lines){const dl=line.includes("\t")?"\t":(line.split("|").length>2?"|":null);
+if(dl){const cells=line.split(dl).map(x=>x.trim());if(!hdr&&cells.filter(c=>mk(c)).length>=2){hdr=cells.map(mk);hcur=/rmb|人民币|cny/i.test(line)?"RMB":"";continue}
+if(hdr){const row=Object.assign({date:ctx.date,country:ctx.country,brand:ctx.brand,plant:ctx.plant,product:ctx.product,spec:"",ship:ctx.ship,qty:"",cur:hcur||"USD",price:"",note:""});
+cells.forEach((c,i)=>{const k=hdr[i];if(k&&c){if(k=="price"){const n=c.replace(/,/g,"").match(/\d+(?:\.\d+)?/);if(n){row.price=n[0];if(isRMBc(c))row.cur="RMB"}}else row[k]=c}});
+const x=ext(cells.join(" "));for(const k of ["product","country","plant","qty","price","ship","brand","spec"])if(!row[k]&&x[k]){row[k]=x[k];if(k=="price"&&x.cur)row.cur=x.cur}
+if(row.product||row.price)rows.push(row);else SK.push(line);continue}}
+const x=ext(line);const item=x.price||(x.product&&(x.qty||x.plant));
+if(!item){let u=false;for(const k of ["country","brand","plant","ship","product","date"])if(x[k]){ctx[k]=x[k];u=true}if(!u)SK.push(line);continue}
+const row={date:ctx.date,country:ctx.country,brand:ctx.brand,plant:ctx.plant,product:ctx.product,spec:"",ship:ctx.ship,qty:"",cur:"USD",price:"",note:""};
+for(const k in x)if(x[k])row[k]=x[k];
+if(!row.product||!row.price||!row.plant||!row.qty||!row.country)row.note="原文:"+line.slice(0,80);rows.push(row)}
+return rows}
+const isRMBc=c=>/rmb|cny|人民币|¥|￥|元/i.test(c);
+function parseTextOld(t){const rows=[];let cdate=today();
+const dm=t.match(/(20\d\d)[-\/.年](\d{1,2})[-\/.月](\d{1,2})/);if(dm)cdate=`${dm[1]}-${dm[2].padStart(2,"0")}-${dm[3].padStart(2,"0")}`;
+t.split(/\n+/).map(x=>x.trim()).filter(x=>x.length>3).forEach(line=>{
+const r={date:cdate,country:"",brand:"",plant:"",product:"",spec:"",ship:"",qty:"",cur:"USD",price:"",note:""};
+for(const c of COUNTRIES)if(line.includes(c)){r.country=c==="澳洲"?"澳大利亚":c;break}
+const s=stdName(line);if(s){r.product=s}else{const pm=line.match(/(beef|牛)[\w\s\u4e00-\u9fa5]{2,20}/i);if(pm)r.product=pm[0].trim()}
+const pl=line.match(/(?:est\.?|SIF|厂号|plant)\s*[:：]?\s*(\d{1,5})/i)||line.match(/\b(\d{1,4})\b(?=\s*(?:厂|号))/);if(pl)r.plant=pl[1];
+const q=line.match(/(\d+)\s*(?:柜|cntr|cntrs|fcl|x\s*40|container)/i);if(q)r.qty=q[1];
+const sp=line.match(/(?:ETD|船期|装船)\s*[:：]?\s*([A-Za-z0-9\u4e00-\u9fa5\/\-\. ]{2,12})/i);if(sp)r.ship=sp[1].trim();
+const sz=line.match(/(\d+\s*(?:kg|公斤)\s*[\/x*]?\s*\w*|[\d\-]+\s*(?:级|grade))/i);if(sz)r.spec=sz[0];
+let pm=line.match(/(?:US\$|\$|USD|美金|美元)\s*(\d{3,5}(?:\.\d+)?)/i)||line.match(/(\d{3,5}(?:\.\d+)?)\s*(?:USD|美金|美元|\/\s*(?:mt|ton|吨))/i);
+if(pm)r.price=pm[1];else{pm=line.match(/(?:RMB|CNY|人民币|¥|￥)\s*(\d{4,6}(?:\.\d+)?)/i)||line.match(/(\d{4,6}(?:\.\d+)?)\s*(?:RMB|CNY|元)/i);if(pm){r.price=pm[1];r.cur="RMB"}}
+const b=line.match(/(?:品牌|brand)\s*[:：]?\s*([\w\u4e00-\u9fa5]+)/i);if(b)r.brand=b[1];
+if(r.product||r.price)rows.push(r)});return rows}
+function csvParse(t){t=t.replace(/^\uFEFF/,"");const out=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==","){row.push(f);f=""}else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;row.push(f);out.push(row);row=[];f=""}else f+=c}
+if(f||row.length){row.push(f);out.push(row)}return out.filter(r=>r.some(x=>x.trim()))}
+function csvOut(h,rows){return"\uFEFF"+[h,...rows].map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\r\n")}
+async function dl(name,text){try{if(window.claude&&claude.use){const d=await claude.use("downloads");if(!d){msg="当前环境无法保存文件，请换浏览器打开。";render();return false}await d.save({filename:name,data:text});msg="已保存："+name;render();return true}
+const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:/\.json$/.test(name)?"application/json":"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();a.remove();return true}catch(e){msg=e&&e.code=="declined"?"已取消保存。":"保存失败："+((e&&e.message)||"未知错误");render();return false}}
+const MAMMOTH="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",XLSXU="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+function needLib(n,u,cb){if(window[n])return cb();const s=document.createElement("script");s.src=u;s.onload=cb;s.onerror=()=>{msg="组件加载失败，请检查网络后再试。";render()};document.head.appendChild(s)}
+function readFile(f,cb){if(/\.xlsx?$/i.test(f.name||"")&&!window.XLSX)return needLib("XLSX",XLSXU,()=>readFile(f,cb));const r=new FileReader(),isX=/\.xlsx?$/i.test(f.name||"");r.onload=()=>{const b=r.result;let t;if(isX){try{if(!window.XLSX)throw 0;const wb=XLSX.read(b,{type:"array",cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]];t=XLSX.utils.sheet_to_csv(ws,{dateNF:"yyyy-mm-dd"})}catch(e){msg="Excel 文件读取失败，请另存为 CSV 再导入。";render();return}}else{try{t=new TextDecoder("utf-8",{fatal:true}).decode(b)}catch(e){try{t=new TextDecoder("gbk").decode(b)}catch(e2){t=new TextDecoder().decode(b)}}}cb(t)};r.readAsArrayBuffer(f)}
+const OH=COLS.map(c=>c[1]);
+const rowFromArr=a=>{const o={};COLS.forEach((c,i)=>o[c[0]]=(a[i]||"").trim());o.cur=/rmb|人民币|cny/i.test(o.cur)?"RMB":"USD";{const dd=nd(o.date);if(dd)o.date=dd}o.pay=(String(o.pay||"").match(/\d+(?:\.\d+)?/)||[""])[0];if(o.pay)o.pay+="%";return o};
+function tpl(){dl("报盘录入模板.csv",csvOut(OH,[[today(),"巴西","JBS","337","牛外脊","","3月下旬","2","USD","5200","60%","示例行，导入前请删除"]]))}
+function go(t){tab=t;msg="";render()}
+let LT="";
+function persistDraft(){try{localStorage.setItem("baopan_draft",JSON.stringify({D,DS,TV}))}catch(e){}}
+function render(){const q=s=>document.querySelectorAll?[...document.querySelectorAll(s)]:[],same=LT===tab,sy=(typeof window!=="undefined"&&window.scrollY)||0,tw=q(".tw").map(e=>[e.scrollTop,e.scrollLeft]);render0();LT=tab;persistDraft();
+if(same){q(".tw").forEach((e,i)=>{if(tw[i]){e.scrollTop=tw[i][0];e.scrollLeft=tw[i][1]}});if(window.scrollTo)window.scrollTo(0,sy)}else if(window.scrollTo)window.scrollTo(0,0)}
+function render0(){IDX=new WeakMap();RIC.clear();AMBC=null;
+const tabs=[["entry","报盘录入"],["list","已录入("+S.offers.length+")"],["goods","货物管理"],["trend","行情透视"],["tax","税率模板"],["rate","汇率"],["map","产品对应"],["spot","现货行情("+S.spot.length+")"],["fac","国外工厂名录"],["grp","厂号集团"],["live","国内外活畜价格"],["cust","客户资料"],["bak","备份恢复"]];
+document.getElementById("nav").innerHTML=tabs.map(t=>`<button class="${tab==t[0]?"on":""}" onclick="go('${t[0]}')">${t[1]}</button>`).join("");
+document.getElementById("m").innerHTML=rateBanner()+liveBanner()+goodsBanner()+bakBanner()+({entry:vEntry,list:vList,tax:vTax,map:vMap,grp:vGrp,fac:vFac,spot:vSpot,rate:vRate,bak:vBak,live:vLive,trend:vTrend,goods:vGoods,cust:vCust})[tab]()+(msg?`<p class="stat" style="white-space:pre-wrap">${esc(msg)}</p>`:"")}
+function vEntry(){
+const ALLD=S.offers.concat(D),chk=D.map(r=>check(r,ALLD));
+CHK=chk;const ne=chk.filter(c=>c.e.length).length,nw=chk.filter(c=>!c.e.length&&c.w.length).length;
+return`<section><h2>1. 导入报盘</h2><p class="stat" style="margin:0 0 6px">输入的文字和识别出的待确认内容会自动保留，切换页签、刷新页面都不会丢，确认录入后才清空。</p><p class="h">粘贴报盘文字，或导入 Word（.docx）、CSV 模板。识别后先放在下面的待确认表，不会直接入库。</p>
+<textarea id="tx" oninput="TV.tx=this.value" placeholder="例如：2026-10-10 巴西 SIF337 牛外脊 2柜 ETD 11月中 USD 5200/吨">${esc(TV.tx||"")}</textarea>
+<div class="row"><button class="b" onclick="doText()">识别文字</button>
+<label class="g" style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入 Word<input type="file" accept=".docx" hidden onchange="doDocx(this.files[0])"></label>
+<label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入 CSV<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="doCsv(this.files[0])"></label>
+<button class="g" onclick="tpl()">下载录入模板</button><button class="g" onclick="addUnm()">未对应产品加入对应表</button><button class="g" onclick="stdAll()">产品名统一为标准名称</button></div>
+<div class="row"><span class="stat">默认汇率（汇率表无可用日期时备用，请先到“汇率”页签录入每日汇率）</span><input type="number" step="0.0001" value="${S.rate}" style="width:90px" onchange="S.rate=+this.value||S.rate;save();render()"></div></section>
+<section><h2>2. 人工确认</h2><p class="stat">共 ${D.length} 行，错误 ${ne} 行，提示 ${nw} 行。红色必须修正，黄色可确认后录入。成本价 = 价格 ×（美元时按报盘日汇率+汇率加成）×（1+关税+附加关税）×（1+增值税）+加价（默认500元/吨），再四舍五入到百位${S.tax.length?"":"。尚未导入税率，成本价暂不计算"}。</p>
+${D.length?`<div class="row stk"><button class="g" onclick="selAll()">全选/取消</button><span class="stat" id="selcnt" style="font-weight:600;color:var(--ac);white-space:nowrap">${selText()}</span>
+<select id="bf">${COLS.filter(c=>c[0]!="price").map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select><input id="bv" placeholder="批量改为…" style="width:120px">
+<button class="g" onclick="bulk()">批量修改</button><button class="g" onclick="sel50()">多选50行</button><button class="g" onclick="selNone()">取消选中</button><button class="d" onclick="delSel()">删除所选</button><button class="g" onclick="addRow()">新增一行</button><button class="b" onclick="confirmAll()">确认录入</button></div>
+<div id="dtab">${draftTable()}</div>
+<div class="row"><button class="b" onclick="confirmAll()">确认无误，录入系统</button><button class="d" onclick="D=[];SEL.clear();render()">清空待确认</button></div>`:`<p class="stat">暂无待确认内容。</p><button class="g" onclick="addRow()">新增一行</button>`}</section>`}
+function doText(){const t=document.getElementById("tx").value;const r=parseText(t);if(!r.length){msg="没有识别到报盘行，请检查文字是否含产品和价格。";return render()}r.forEach(x=>{x.uid=Math.random().toString(36).slice(2)});D=D.concat(enrich(r));msg=`识别出 ${r.length} 行，请逐行核对。`+(SK.length?`\n另有 ${SK.length} 行没识别出产品或价格，已跳过：\n`+SK.slice(0,8).join("\n"):"");render()}
+function doDocx(f){if(!f)return;if(!window.mammoth)return needLib("mammoth",MAMMOTH,()=>doDocx(f));
+const r=new FileReader();r.onload=()=>mammoth.convertToHtml({arrayBuffer:r.result}).then(x=>{const d=new DOMParser().parseFromString(x.value,"text/html"),o=[];d.body.childNodes.forEach(n=>{if(n.tagName=="TABLE")n.querySelectorAll("tr").forEach(tr=>o.push([...tr.children].map(c=>c.textContent.trim().replace(/\s+/g," ")).join("\t")));else if(n.querySelectorAll&&n.querySelectorAll("li").length)n.querySelectorAll("li").forEach(li=>o.push(li.textContent.trim()));else if(n.textContent.trim())o.push(n.textContent.trim())});document.getElementById("tx").value=o.join("\n");doText()}).catch(()=>{msg="Word 读取失败。";render()});r.readAsArrayBuffer(f)}
+function doCsv(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t),hd=rs[0]||[],ix=COLS.map(c=>hd.indexOf(c[1])),byH=ix.filter(i=>i>=0).length>=5;const rows=rs.slice(1).map(a=>rowFromArr(byH?ix.map(i=>i>=0?a[i]:""):a)).filter(r=>r.product||r.price);D=D.concat(enrich(rows));msg=`导入 ${rows.length} 行。`;render()})}
+function ed(i,k,v){D[i][k]=v;persistDraft();lazyRender()}
+function tg(i){SEL.has(i)?SEL.delete(i):SEL.add(i);const e=document.getElementById("selcnt");if(e)e.textContent=selText()}
+function selAll(){SEL.size==D.length?SEL.clear():D.forEach((_,i)=>SEL.add(i));syncChecks()}
+function bulk(){const k=document.getElementById("bf").value,v=document.getElementById("bv").value;if(!SEL.size){msg="请先勾选行。";return render()}SEL.forEach(i=>D[i][k]=v);msg=`已修改 ${SEL.size} 行。`;render()}
+function delSel(){D=D.filter((_,i)=>!SEL.has(i));SEL.clear();render()}
+function confirmAll(){if(!D.length)return;const bad=D.filter(r=>check(r,S.offers).e.length).length;if(bad){msg=`还有 ${bad} 行存在错误（红色），请修正或删除后再录入。`;return render()}
+learnGroups(D);D.forEach(r=>S.offers.push(Object.assign({},r,{id:Date.now()+Math.random(),rate:S.rate})));msg=`已录入 ${D.length} 行。`;D=[];SEL.clear();save();render()}
+function vList(){const L=filt(),g=qGroup();return`<section><h2>已录入报盘</h2><p class="h">成本价按当前税率模板重新计算；汇率使用录入时的汇率。</p><div class="row"><input value="${esc(Q)}" placeholder="搜厂号（自动含同集团）/产品/国家/品牌" style="flex:1;min-width:200px" onchange="Q=this.value;render()"><span class="stat">${L.length}/${S.offers.length} 条</span><select onchange="OSORT=this.value;render()"><option value="new" ${OSORT=="new"?"selected":""}>按报盘日期：近→远</option><option value="old" ${OSORT=="old"?"selected":""}>按报盘日期：远→近</option><option value="ins" ${OSORT=="ins"?"selected":""}>按录入顺序</option></select></div>
+<div class="row"><select onchange="OF.country=this.value;render()"><option value="">全部国家</option>${[...new Set(S.offers.map(o=>o.country).filter(Boolean))].map(c=>`<option ${c==OF.country?"selected":""}>${esc(c)}</option>`).join("")}</select><input value="${esc(OF.plant)}" placeholder="厂号（集团内任一厂号，显示整个集团）" style="flex:1;min-width:170px" onchange="OF.plant=this.value;render()"></div>
+<div class="row"><select onchange="OF.prod=this.value;render()" style="max-width:48%"><option value="">全部产品</option>${[...new Set(S.offers.map(o=>stdOf(o)||o.product).filter(Boolean))].sort().map(c=>`<option ${c==OF.prod?"selected":""}>${esc(c)}</option>`).join("")}</select><select onchange="OF.spec=this.value;render()" style="max-width:30%"><option value="">全部规格</option>${S.offers.some(o=>!String(o.spec||"").trim())?`<option value="__none" ${OF.spec=="__none"?"selected":""}>无规格</option>`:""}${[...new Set(S.offers.map(o=>String(o.spec||"").trim()).filter(Boolean))].sort().map(c=>`<option ${c==OF.spec?"selected":""}>${esc(c)}</option>`).join("")}</select><span class="stat">日期</span><input type="date" value="${esc(OF.from)}" style="width:138px" onchange="OF.from=this.value;render()"><span class="stat">至</span><input type="date" value="${esc(OF.to)}" style="width:138px" onchange="OF.to=this.value;render()"><button class="g" onclick="ofClear()">清除筛选</button></div>
+${ofKeys()?`<p class="stat">厂号筛选范围：${esc(fmtG(ofKeys()))}</p>`:""}${g?`<p class="stat">集团厂号：${fmtG(g)}</p>`:""}
+<div class="row"><button class="g" onclick="expOffers()">导出报盘明细</button><button class="g" onclick="expOffers(1)">导出当前筛选</button><button class="d" onclick="clrOffers()">清空全部</button></div>
+${grid("offers",sortIdx(L.map(r=>S.offers.indexOf(r)),S.offers,OSORT))}</section>`}
+function calcAt(r){return calc(r)}
+function costWhy(r){if(!(parseFloat(r.price)>0))return"缺价格";if(!r.country)return"缺国家";if(!S.tax.length)return"未导入税率";if(!taxFor(r.country))return"无该国税率";return""}
+function expOffers(f){dl(f?"国外报盘汇总_筛选结果.csv":"国外报盘汇总.csv",csvOut([...OH,"人民币成本价","计算汇率"],(f?filt():S.offers).map(r=>[...COLS.map(c=>r[c[0]]),calcAt(r),+(rateInfo(r.date).rate+fxAdd()).toFixed(4)])))}
+function delOffer(id){S.offers=S.offers.filter(r=>r.id!==id);save();render()}
+function clrOffers(){if(confirm("确定清空全部已录入报盘？建议先导出备份。")){S.offers=[];save();render()}}
+let Q="";
+const plantsOf=s=>String(s||"").split(/[\/、,，\s]+/).filter(x=>/^\d{1,5}(?:-\d{1,5})?$/.test(x));
+const gk=(c,p)=>(c||"")+"|"+p;
+function mm(m,c,p){const i=m.indexOf("|"),cc=m.slice(0,i),pp=m.slice(i+1);return pp===String(p)&&(!c||!cc||cc===c)}
+const skey=(a,b)=>{const ia=a.indexOf("|"),ib=b.indexOf("|"),ca=a.slice(0,ia),cb=b.slice(0,ib);return a.slice(ia+1)===b.slice(ib+1)&&(ca===cb||!ca||!cb)};
+function gOf(p,c){const hit=S.groups.filter(g=>g.some(m=>mm(m,c,p)));return hit.length?[...new Set(hit.flat())]:[gk(c,p)]}
+const rowIn=(r,keys)=>plantsOf(r.plant).some(p=>keys.some(m=>mm(m,r.country,p)));
+function fmtG(g){const by={};g.forEach(m=>{const i=m.indexOf("|"),c=m.slice(0,i)||"未标国家";(by[c]=by[c]||[]).push(m.slice(i+1))});return Object.entries(by).map(([c,a])=>c+"："+a.join("/")).join("；")}
+function plantQ(q){q=String(q||"").trim();if(!q)return null;const c=ctry(q);let rest=q;for(const k in CN2)for(const a of CN2[k])if(!/^[a-z. ]+$/.test(a))rest=rest.split(a).join(" ");rest=rest.trim();if(!rest||!/^[\d\/、,，\s\-]+$/.test(rest))return null;const ps=plantsOf(rest.replace(/-/g,"/"));if(!ps.length)return null;return{c,ps,keys:[...new Set(ps.flatMap(p=>gOf(p,c)))]}}
+function migGroups(){if(S.grpV>=2)return;const cs=p=>{const s=new Set();S.factories.forEach(f=>{if(f.plant==p&&f.country)s.add(f.country)});S.offers.forEach(o=>{if(o.country&&plantsOf(o.plant).includes(p))s.add(o.country)});return s};const out=[];
+for(const g of S.groups){const keep=g.filter(x=>String(x).includes("|")),nums=g.filter(x=>!String(x).includes("|"));if(keep.length)out.push(keep);const byC={};nums.forEach(p=>{const s=cs(p);if(!s.size)(byC[""]=byC[""]||[]).push(p);else s.forEach(c=>(byC[c]=byC[c]||[]).push(p))});for(const c in byC)if(byC[c].length>=2)out.push(byC[c].map(p=>gk(c,p)))}
+S.groups=out;S.grpV=2}
+function ensureSeedGroups(){if(S.seedG>=1)return;const add=(c,ps)=>{const keys=ps.map(p=>gk(c,p));if(!S.groups.some(g=>keys.every(k=>g.includes(k))))learnGroups([{plant:ps.join("/"),country:c}])};add("乌拉圭",["2","12","55","394"]);add("澳大利亚",["53","1265","394"]);S.seedG=1}
+function qGroup(){const p=plantQ(Q);return p?p.keys:null}
+function ofKeys(){const t=OF.plant.trim();if(!t)return null;const q=plantQ(t);if(!q)return null;const c=q.c||OF.country;return[...new Set(q.ps.flatMap(p=>gOf(p,c)))]}
+function filt(){const keys=ofKeys(),t=OF.plant.trim().toLowerCase();return filt0().filter(r=>(!OF.country||r.country===OF.country)&&(!t||(keys?rowIn(r,keys):String(r.plant||"").toLowerCase().includes(t)))&&(!OF.prod||(stdOf(r)||r.product)===OF.prod)&&(!OF.spec||(OF.spec==="__none"?!String(r.spec||"").trim():String(r.spec||"").trim()===OF.spec))&&(!OF.from||String(r.date||"")>=OF.from)&&(!OF.to||String(r.date||"")<=OF.to))}
+function ofClear(){OF={country:"",plant:"",prod:"",spec:"",from:"",to:""};render()}
+function filt0(){const q=Q.trim();if(!q)return S.offers;const g=qGroup();if(g)return S.offers.filter(r=>rowIn(r,g));const l=q.toLowerCase();return S.offers.filter(r=>COLS.some(c=>String(r[c[0]]||"").toLowerCase().includes(l)))}
+function learnGroups(rows){rows.forEach(r=>{const ps=plantsOf(r.plant);if(ps.length<2||r.rand)return;const keys=ps.map(p=>gk(r.country,p)),hit=S.groups.filter(g=>g.some(m=>keys.some(k=>skey(m,k))));S.groups=S.groups.filter(g=>!hit.includes(g));S.groups.push([...new Set([...hit.flat(),...keys])])})}
+function vGrp(){return`<section><h2>厂号集团</h2><p class="h">同一集团的厂号互相关联（按国家区分，不同国家的同号厂不会混在一起）：搜索任意一个厂号，会显示整个集团的报盘，搜索时可以带上国家，如“乌拉圭394”。报盘里同时写多个厂号（如 4029/3112）时，系统录入后会自动归为一个集团；也可以在这里手动添加或合并。</p>
+<div class="row"><input id="ngc" placeholder="国家（如 乌拉圭）" style="width:120px"><input id="ng" placeholder="同集团厂号，如 2/12/55/394" style="flex:1;min-width:160px"><button class="b" onclick="addGrp()">添加/合并</button></div>
+${S.groups.length?`<div class="tw"><table><tr><th>集团（按国家）</th><th>报盘数</th><th></th></tr>${S.groups.map((g,i)=>`<tr><td>${fmtG(g)}</td><td>${S.offers.filter(r=>rowIn(r,g)).length}</td><td><button class="d" style="padding:2px 8px" onclick="delGrp(${i})">删</button></td></tr>`).join("")}</table></div>`:`<p class="stat">暂无集团。</p>`}</section>`}
+function addGrp(){const ps=plantsOf(document.getElementById("ng").value);if(ps.length<2){msg="请输入至少两个厂号。";return render()}const gc=document.getElementById("ngc").value.trim();learnGroups([{plant:ps.join("/"),country:ctry(gc)||gc}]);save();msg="已保存集团。";render()}
+function delGrp(i){S.groups.splice(i,1);save();render()}
+let QF="";
+const FM=[[/集团/,"group"],[/国家/,"country"],[/品牌/,"brand"],[/联系人/,"contact"],[/电话|手机|tel/i,"phone"],[/邮/,"email"],[/微信|wechat/i,"wechat"],[/备注/,"note"],[/厂/,"plant"]];
+const FH=["国家","厂号","品牌","集团名称","联系人","电话","邮箱","微信","备注"],FK=["country","plant","brand","group","contact","phone","email","wechat","note"];
+function facTpl(){dl("国外工厂名录模板.csv",csvOut(FH,[["巴西","4029","JBS","JBS集团","张三","+55 11 0000 0000","a@example.com","wx_example","示例行，导入前请删除"],["巴西","3112","JBS","JBS集团","","","","","示例行，导入前请删除"]]))}
+function facExp(){dl("国外工厂名录.csv",csvOut(FH,S.factories.map(f=>FK.map(k=>f[k]))))}
+function impFac(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t);if(rs.length<2){msg="文件为空。";return render()}
+const keys=rs[0].map(c=>{for(const k of FM)if(k[0].test(c))return k[1];return""});
+if(!keys.includes("plant")){msg="没有找到“厂号”列，请对照模板表头。";return render()}
+const gm={},seen=new Set(),skip=[],dupl=[];let add=0,upd=0;
+rs.slice(1).forEach((a,ri)=>{const o={};keys.forEach((k,i)=>{if(k)o[k]=(a[i]||"").trim()});
+const ps=String(o.plant||"").split(/[\/、,，;；\n]+/).flatMap(x=>{x=x.trim();return/^\d+(\s+\d+)+$/.test(x)?x.split(/\s+/):[x]}).filter(Boolean);
+if(!ps.length){skip.push(ri+2);return}
+ps.forEach(p=>{const key=(o.country||"")+"|"+p;if(seen.has(key))dupl.push((o.country||"")+p);seen.add(key);
+const i=S.factories.findIndex(z=>z.plant==p&&(!z.country||!o.country||z.country==o.country));const x=Object.assign({},o,{plant:p});
+if(i>=0){for(const k in x)if(x[k])S.factories[i][k]=x[k];upd++}else{S.factories.push(Object.assign({country:"",brand:"",group:"",contact:"",phone:"",email:"",wechat:"",note:""},x));add++}});
+if(ps.length>1)learnGroups([{plant:ps.join("/"),country:o.country}]);
+if(o.group){const kk=(o.country||"")+"\u0001"+o.group;(gm[kk]=gm[kk]||{c:o.country,ps:[]}).ps.push(...ps)}});
+Object.values(gm).forEach(x=>{if(x.ps.length>1)learnGroups([{plant:x.ps.join("/"),country:x.c}])});
+save();msg=`文件共 ${rs.length-1} 行：新增 ${add} 个，更新已有 ${upd} 个；名录现有 ${S.factories.length} 个。`+(dupl.length?`\n文件内国家+厂号重复 ${dupl.length} 个（已合并）：${dupl.slice(0,15).join("、")}`:"")+(skip.length?`\n跳过 ${skip.length} 行（厂号为空），在文件第 ${skip.slice(0,15).join("、")} 行（不含空行）。`:"");render()})}
+function enrich(rows){rows.forEach(r=>{for(const p of plantsOf(r.plant)){const c=S.factories.filter(z=>z.plant==p);const f=(r.country&&c.find(z=>z.country===r.country))||(c.length==1?c[0]:null);if(f){if(!r.brand&&f.brand)r.brand=f.brand;if(!r.country&&f.country)r.country=f.country;break}}});return rows}
+function facGroup(){const p=plantQ(QF);return p?p.keys:null}
+function vFac(){const q=QF.trim().toLowerCase(),g=facGroup();let L=S.factories;if(q)L=g?L.filter(f=>rowIn(f,g)):L.filter(f=>FK.some(k=>String(f[k]||"").toLowerCase().includes(q)));
+return`<section><h2>国外工厂名录</h2><p class="h">按模板填写后导入（可直接导入 Excel 或 CSV）。“集团名称”相同的厂号归为一个集团；搜索任意厂号，同集团的所有厂号一并显示。</p>
+<div class="row"><button class="g" onclick="facTpl()">下载模板</button><label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入名录<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="impFac(this.files[0])"></label><button class="g" onclick="facExp()">导出名录</button></div>
+<div class="row"><input value="${esc(QF)}" placeholder="搜厂号（含同集团）/品牌/国家/联系人" style="flex:1;min-width:200px" onchange="QF=this.value;render()"><span class="stat">${L.length}/${S.factories.length}</span></div>
+${g?`<p class="stat">集团厂号：${fmtG(g)}</p>`:""}
+${grid("factories",L.map(r=>S.factories.indexOf(r)).reverse(),{h:"<th>同集团厂号</th>",f:r=>`<td>${gOf(r.plant,r.country).length>1?fmtG(gOf(r.plant,r.country)):""}</td>`})}</section><section><h2>“所有厂随机”对应厂号</h2><p class="h">报盘标题写“所有厂随机”但没列厂号时，按这里的厂号填入。标题里自己写了厂号的，以标题为准。</p>${grid("randPlants",S.randPlants.map((_,i)=>i))}</section>`}
+let DS=[],SS=new Set(),QS="";
+const SH=["日期","国家","厂号","品名","价格(元/吨)"],SKY=["date","country","plant","product","price"];
+const SM=[[/生产|产期/,"prod"],[/日期/,"date"],[/类型/,"type"],[/国家/,"country"],[/品牌/,"brand"],[/规格/,"spec"],[/备注/,"note"],[/价/,"price"],[/产品|品名/,"product"],[/厂/,"plant"]];
+const dayN=s=>{let v=DN.get(s);if(v===undefined){v=Date.parse((s||"")+"T00:00:00")/864e5;DN.set(s,v)}return v};
+function near(o,r,days,anyC){if(o===r)return false;const a=dayN(o.date),b=dayN(r.date);if(isNaN(a)||isNaN(b)||a>b||b-a>days)return false;if(!anyC&&r.country&&o.country&&r.country!==o.country)return false;return true}
+const sameP=(a,b)=>{const x=stdName(a),y=stdName(b);return x&&y?x===y:String(a||"").trim().toLowerCase()===String(b||"").trim().toLowerCase()};
+const dupO=(o,r)=>o!==r&&o.date===r.date&&sameP(pn(o),pn(r))&&String(o.plant||"")===String(r.plant||"")&&String(o.price)===String(r.price)&&(o.cur||"")===(r.cur||"")&&String(o.spec||"")===String(r.spec||"");
+const pkey=r=>stdOf(r)||String(r.product||"").trim().toLowerCase();
+function sortIdx(ix,arr,m){const a=ix.slice();if(m==="ins")return a.reverse();const f=m==="old"?1:-1;return a.sort((x,y)=>{const dx=String(arr[x].date||""),dy=String(arr[y].date||"");if(dx!==dy){if(!dx)return 1;if(!dy)return -1;return dx<dy?-f:f}return y-x})}
+function pidx(all){let m=IDX.get(all);if(!m){m=new Map();for(const o of all){const k=pkey(o);let a=m.get(k);if(!a)m.set(k,a=[]);a.push(o)}IDX.set(all,m)}return m}
+function checkS(r,all){all=all||S.spot;const e=[],w=[],p=parseFloat(r.price);
+if(!r.product)e.push("缺产品");else if(!stdOf(r))w.push("产品未对应");
+if(!(p>0))e.push("缺价格");else if(p<10000||p>150000)w.push("价格量级可疑");
+if(!r.country)w.push("缺国家");
+if(r.plant&&S.factories.length&&plantsOf(r.plant).length&&!plantsOf(r.plant).some(q=>S.factories.some(f=>f.plant==q&&(!r.country||!f.country||f.country===r.country))))w.push("厂号不在名录");
+if(p>0){const cd=(pidx(all).get(pkey(r))||[]).filter(o=>o.price>0);let bs=cd.filter(o=>near(o,r,180)).map(o=>+o.price).sort((a,b)=>a-b);if(bs.length<3)bs=cd.filter(o=>near(o,r,180,1)).map(o=>+o.price).sort((a,b)=>a-b);
+if(bs.length>=3){const md=bs[bs.length>>1];if((p>=md*2.5||p<=md/2.5))w.push("价格异常：近半年同类中位价约"+Math.round(md)+"，相差"+Math.round((p/md-1)*100)+"%")}
+if((pidx(all).get(pkey(r))||[]).some(o=>o!==r&&o.date===r.date&&String(o.plant||"")===String(r.plant||"")&&String(o.price)===String(r.price)))w.push("疑似重复")}
+return{e,w}}
+function cmp(r){const s=stdOf(r),p=parseFloat(r.price);if(!s||!(p>0))return null;const L=S.offers.filter(o=>stdOf(o)==s&&(!r.country||!o.country||o.country==r.country)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));if(!L.length)return null;const c=calcAt(L[0]);return c?{cost:c,diff:Math.round(p-c)}:null}
+const CS=Object.values(CN2).flat().filter(a=>!/^[a-z. ]+$/.test(a)).join("|");
+const R1=new RegExp("^(?:("+CS+"))?\\s*(\\d{1,4})\\s*厂?\\s*([^\\d（(，,、]+?)\\s*[（(]?\\s*(\\d+(?:\\.\\d+)?)\\s*[）)]?\\s*$");
+const R2=new RegExp("^(?:("+CS+"))?\\s*([^\\d（(，,、]{2,}?)\\s*[（(]?\\s*(\\d+(?:\\.\\d+)?)\\s*[）)]?\\s*$");
+const RH=new RegExp("^(?:("+CS+"))?\\s*(\\d{1,4})\\s*厂?\\s*([^\\d（(]*)$");
+const pc=v=>{const p=parseFloat(v);return String(p<200?Math.round(p*1000):p)};
+const np=s=>s.replace(/^(\d{2})\s*\/\s*(\d{1,2})/,(m,y,mo)=>`20${y}-${mo.padStart(2,"0")}`);
+const LOCW="上海德流冷库|冷库|天津|上海|宁波|青岛|河北|唐山|广州|深圳|大连|厦门|郑州|物流港|港口|信基|整柜|现货|拆出|可拆|整出|拆",LOCR=new RegExp("("+LOCW+")"),LOCS=new RegExp("^("+LOCW+")");
+function pSeg(seg){const o={price:"",pm:"",plant:"",country:"",product:"",loc:"",spec:"",notes:[]};let s=seg.replace(/成交价?|报价|挂牌/g," ").replace(/[，,、;；]/g," "),m,pp="";
+for(let i=0;i<2;i++){m=s.match(/[（(]([^）)]*)[）)]\s*$/);if(!m)break;const v=m[1].trim();s=s.slice(0,m.index);if(/^\d{2}\s*\/\s*\d{1,2}/.test(v))o.pm=np(v.replace(/\s/g,""));else if(/^\d+(?:\.\d+)?$/.test(v)&&!pp)pp=v;else if(v)o.notes.push("（"+v+"）")}
+m=s.match(/(?<![\d])(\d{2})\s*\/\s*(\d{1,2})(?:\s*(?:到|-|~)\s*\d{1,2}\s*月?份?)?/);if(m){o.pm=np(m[0].replace(/\s/g,""));s=s.replace(m[0]," ")}
+m=s.match(new RegExp("^\\s*("+CS+")"));if(m){o.country=m[1];s=s.slice(m[0].length)}
+m=s.match(/^\s*(\d{1,4})(?:\s*厂|(?![\d.+]))/);if(m){o.plant=m[1];s=s.slice(m[0].length)}
+if(!o.plant){const pm=s.match(/(?:厂号|sif|est\.?)\s*[:：]?\s*(\d{1,4})|(?<![\d.])(\d{1,4})\s*厂/i);if(pm){o.plant=pm[1]||pm[2];s=s.replace(pm[0]," ")}}
+s=s.replace(/\d{2,3}\s*[VC]L(?:-Z)?/ig,v=>{o.spec=(o.spec?o.spec+" ":"")+v.replace(/\s/g,"").toUpperCase();return" "});
+s=s.replace(/\d+(?:\+\d+)*\s*件/g,v=>{o.notes.push(v.replace(/\s/g,""));return" "});
+s=s.replace(/-(\d{2,4})(?=-)/g,(v,a)=>{o.notes.push(a+"件");return" "});
+const jm=s.match(/(\d+(?:\.\d+)?)\s*元?\s*\/\s*斤/);if(jm){o.price=String(Math.round(parseFloat(jm[1])*2000));s=s.replace(jm[0]," ")}
+const ok=p=>(p>=10&&p<200)||(p>=10000&&p<150000);
+const cand=[...s.matchAll(/(?<![\d.+])(\d{1,6}(?:\.\d+)?)(?![\d.+])(?!\s*[年月日件柜箱+])/g)].filter(x=>ok(+x[1]));
+if(o.price){}else if(cand.length){const c=cand[cand.length-1];o.price=pc(c[1]);s=s.slice(0,c.index)+" "+s.slice(c.index+c[0].length)}else if(pp&&ok(+pp))o.price=pc(pp);
+if(!o.plant){const tk=[...s.matchAll(/(?<![\d.])(\d{2,4})(?![\d.+])/g)].map(x=>x[1]).find(n=>S.factories.some(f=>f.plant==n));if(tk){o.plant=tk;s=s.replace(new RegExp("(?<![\\d.])"+tk+"(?![\\d.+])")," ")}}
+s=s.replace(/元\s*\/\s*(?:公斤|千克|kg|吨)|\/\s*(?:公斤|千克|kg|吨)|[¥￥]|元\/?|公斤|现价|价格/gi," ");
+s=s.replace(/\s+/g," ").trim();const i=s.search(LOCR);
+if(i>=0){o.loc=s.slice(i).replace(/^[\s\-]+|[\s\-]+$/g,"");s=s.slice(0,i)}
+o.product=s.replace(/^[\s\-—~:：=]+|[\s\-—~:：=]+$/g,"").replace(/-+/g,"");return o}
+function strictSpot(line){let m=line.match(R1);if(m&&m[3].trim())return{k:"item",country:m[1]||"",plant:m[2],product:m[3].trim(),price:pc(m[4])};
+const parts=line.split(/[，,]/).map(s=>s.trim());
+if(parts.length>1){m=parts[0].match(RH);if(m)return{k:"head",country:m[1]||"",plant:m[2],extra:parts.slice(1)}}
+m=line.match(R2);if(m&&parseFloat(m[3])>0&&parseFloat(m[3])<200)return{k:"item",country:m[1]||"",plant:"",product:m[2].trim(),price:pc(m[3])};
+return null}
+const ISRE=new RegExp("^(?:"+CS+")?\\d{1,4}(?![元件柜吨年月日号斤]|kg|公斤)厂?[\\u4e00-\\u9fa5A-Za-z]"),CONTRE=new RegExp("^(?:"+LOCW+"|[一二两三四五六七八九十]+柜|整出|可拆|自提|送)"),BARE=new RegExp("^(?:"+CS+")$");
+const normL=l=>l.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).replace(/．/g,".").replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu," ");
+function splitFlat(line){const ts=line.split(/\s+/).filter(Boolean);if(ts.length<2)return[line.trim()];const out=[];
+for(const t of ts){const cur=out.length?out[out.length-1]:null;
+if(!cur||(!BARE.test(cur)&&(ISRE.test(t)||(/^[\u4e00-\u9fa5]/.test(t)&&!CONTRE.test(t)))))out.push(t);else out[out.length-1]+=" "+t}
+return out}
+function parseSpot(t){SK=[];const rows=[];let c={date:today(),type:"报价",country:"",brand:"",plant:"",loc:"",period:""},locStart=0,pend=null;
+for(const raw of t.split(/\r?\n/).flatMap(l=>l.trim()?splitFlat(normL(l)):[""])){let line=raw.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).replace(/．/g,".").replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu,"").trim().replace(/,(?=\d{3})/g,"").replace(/(\d+(?:\.\d+)?)\s*万/g,(m,a)=>String(Math.round(a*10000)));if(!line){c.gloc="";pend=null;continue}
+const dm=line.match(/^(20\d\d)[.\-\/年](\d{1,2})[.\-\/月](\d{1,2})[日号]?(.*)$/);
+if(dm){c={date:`${dm[1]}-${dm[2].padStart(2,"0")}-${dm[3].padStart(2,"0")}`,type:"报价",country:"",brand:"",plant:"",loc:"",period:""};locStart=rows.length;line=dm[4].trim();if(line.length<2)continue}else{const d2=line.match(/^(\d{1,2})月(\d{1,2})[日号]?(.*)$/)||line.match(/^(\d{1,2})[.\/](\d{1,2})\s*((?:现货|报价|行情|日报|成交)[^\d]*)?$/);if(d2&&+d2[1]>=1&&+d2[1]<=12&&+d2[2]>=1&&+d2[2]<=31){const y=new Date().getFullYear(),dt=`${y}-${String(d2[1]).padStart(2,"0")}-${String(d2[2]).padStart(2,"0")}`;c={date:dt>today()?`${y-1}-${dt.slice(5)}`:dt,type:"报价",country:"",brand:"",plant:"",loc:"",period:""};locStart=rows.length;line=(d2[3]||"").trim();if(line.length<2)continue}}
+const ty=/成交/.test(line)?"成交":/报价|挂牌|报盘|现货/.test(line)?"报价":"";
+const pl=line.match(/^(?:日期\s*[:：]?\s*)?(2\d\s*\/\s*\d{1,2})$/);if(pl){c.period=np(pl[1].replace(/\s/g,""));c.perFresh=true;continue}
+const mu=line.match(/^以上\s*(.+)$/);if(mu){for(let i=locStart;i<rows.length;i++)if(!rows[i].note)rows[i].note=mu[1];locStart=rows.length;continue}
+const segs=line.split(/\t+|\s{2,}/).map(s=>s.trim()).filter(Boolean),items=[];
+for(const s of segs){const probe=s.replace(/\d+(?:\+\d+)*\s*件|[一二两三四五六七八九十\d]+\s*柜|[\d.]+/g,"");if(items.length&&(!/[\u4e00-\u9fa5]/.test(probe)||LOCS.test(s)||/^[（(]/.test(s)))items[items.length-1]+=" "+s;else items.push(s)}
+for(const it of items){const p=pSeg(it);const pd=pend;pend=null;
+if(p.plant){if(p.plant!==c.plant){c.loc="";if(c.perFresh)c.perFresh=false;else c.period="";c.plant=p.plant;c.country=p.country}else if(p.country)c.country=p.country}
+if(p.price){const product=p.product||(pd&&pd.product)||"";if(!product){SK.push(it);continue}
+rows.push({date:c.date,type:ty||c.type,country:p.country||c.country,brand:"",plant:p.plant||c.plant,product,spec:p.spec,prod:p.pm||c.period,price:p.price,note:[p.loc||c.loc||c.gloc,...p.notes].filter(Boolean).join(" ")});continue}
+if(p.plant||(p.country&&p.product)){c.loc=p.loc||"";c.period=p.pm||"";c.perFresh=false;locStart=rows.length;if(p.product)pend={product:p.product};continue}
+if(!p.product&&p.loc){c.gloc=p.loc;continue}
+if(ty)c.type=ty;else if(/(?<![\d.])\d{1,6}(?:\.\d+)?(?![\d.])/.test(it))SK.push(it)}
+continue
+const x=ext(line);let s=line.replace(/(?:est\.?|sif|sie|spe|sisa|tg|plant|factory|厂号|工厂|厂)\s*[:：#.\-]?\s*\d{1,5}/ig," ").replace(/\d{1,5}\s*厂/g," ").replace(/(\d{1,3}\s*\/\s*)+\d{1,3}\s*厂/g," ");
+let price="";const kg=s.match(/(\d+(?:\.\d+)?)\s*(?:元|RMB)?\s*\/\s*(?:kg|公斤|千克)/i);
+if(kg){price=String(Math.round(+kg[1]*1000));s=s.replace(kg[0]," ")}
+else{const ns=[...s.matchAll(/(?<![\d.])(\d{4,6})(?![\d.])/g)].map(m=>m[1]);const big=ns.filter(n=>+n>=10000);price=big.length?big[big.length-1]:(ns.length?ns[ns.length-1]:"");if(price)s=s.replace(new RegExp("(?<![\\d.])"+price+"(?![\\d.])")," ")}
+let plant=x.plant||c.plant;if(!x.plant){const o=[...s.matchAll(/(?<![\d.])(\d{3,5})(?![\d.])/g)].map(m=>m[1]).find(n=>S.factories.some(f=>f.plant==n));if(o){plant=o;s=s.replace(o," ")}}
+const sp=[];s=s.replace(/\d{2,3}\s*[VC]L(?:-Z)?/ig,v=>{sp.push(v.replace(/\s/g,"").toUpperCase());return" "});
+let name=s;for(const k in CN2)for(const a of CN2[k])if(!/^[a-z. ]+$/.test(a))name=name.split(a).join(" ");
+if(x.brand)name=name.split(x.brand).join(" ");name=name.replace(/成交价?|报价|挂牌|现货价?|报盘|美元|美金|USD|RMB|人民币|元|\/?吨|\/?公斤|[$¥￥:：|,，;；()（）\[\]【】]/gi," ").replace(/\s+/g," ").trim();
+const pr=prod(line);const product=(pr&&stdName(pr))?pr:(name.length>=2?name:pr);
+const hasItem=price&&product;
+if(!hasItem){let u=false;if(ty){c.type=ty;u=true}for(const k of["country","brand"])if(x[k]){c[k]=x[k];u=true}if(x.plant){c.plant=x.plant;u=true}if(!u)SK.push(line);continue}
+rows.push({date:c.date,type:ty||c.type,country:x.country||c.country,brand:x.brand||c.brand,plant,product,spec:[...(x.spec?[x.spec]:[]),...sp].join(" "),prod:"",price,note:""})}
+return rows}
+function spTpl(){dl("现货行情模板.csv",csvOut(SH,[[today(),"巴西","4029","牛腩","52000"]]))}
+function spKey(r){return[nd(r.date)||r.date,ctry(r.country)||r.country||"",String(r.plant||""),stdOf(r)||String(r.product||"")].join("|")}
+function spMin(rows){const m=new Map();let drop=0;rows.forEach(r=>{const k=spKey(r),e=m.get(k),p=parseFloat(r.price);if(!e)m.set(k,r);else{drop++;if(p>0&&!(parseFloat(e.price)<=p))m.set(k,r)}});return{rows:[...m.values()],drop}}
+function spAdd(rows){const mg=spMin(DS.concat(enrichS(rows)));DS=mg.rows;return mg.drop}
+function spText(){const r=parseSpot(document.getElementById("sx").value);if(!r.length){msg="没有识别到现货行情，请检查文字是否含产品和价格。"+(SK.length?"\n未识别的行：\n"+SK.slice(0,20).join("\n"):"");return render()}const dr=spAdd(r);msg=`识别出 ${r.length} 行，请逐行核对。`+(dr?`同一天、同工厂、同产品有多个价格，已合并 ${dr} 条，只保留最低价。`:"")+(SK.length?`\n另有 ${SK.length} 行未识别出产品或价格，已跳过：\n`+SK.slice(0,20).join("\n"):"");render()}
+function spDocx(f){if(!f)return;if(!window.mammoth)return needLib("mammoth",MAMMOTH,()=>spDocx(f));const r=new FileReader();r.onload=()=>mammoth.convertToHtml({arrayBuffer:r.result}).then(x=>{const d=new DOMParser().parseFromString(x.value,"text/html"),o=[];d.body.childNodes.forEach(n=>{if(n.tagName=="TABLE")n.querySelectorAll("tr").forEach(tr=>o.push([...tr.children].map(c=>c.textContent.trim().replace(/\s+/g," ")).join("  ")));else if(n.querySelectorAll&&n.querySelectorAll("li").length)n.querySelectorAll("li").forEach(li=>o.push(li.textContent.trim()));else if(n.textContent.trim())o.push(n.textContent.trim())});document.getElementById("sx").value=o.join("\n");spText()}).catch(()=>{msg="Word 读取失败。";render()});r.readAsArrayBuffer(f)}
+function spCsv(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t);const keys=(rs[0]||[]).map(c=>{for(const k of SM)if(k[0].test(c))return k[1];return""});if(!keys.includes("price")||!keys.includes("product")){msg="表头需包含“产品”和“价格”列，请对照模板。";return render()}
+const rows=rs.slice(1).map(a=>{const o={date:today(),country:"",plant:"",product:"",price:""};keys.forEach((k,i)=>{if(k in o&&a[i])o[k]=a[i].trim()});o.price=(o.price.replace(/,/g,"").match(/\d+(?:\.\d+)?/)||[""])[0];return o}).filter(r=>r.product||r.price);const dr=spAdd(rows);msg=`导入 ${rows.length} 行。`+(dr?`同一天、同工厂、同产品有多个价格，已合并 ${dr} 条，只保留最低价。`:"");render()})}
+function spEd(i,k,v){DS[i][k]=v;persistDraft();lazyRender()}
+function spTg(i){SS.has(i)?SS.delete(i):SS.add(i);const e=document.getElementById("spcnt");if(e)e.textContent="已选 "+SS.size+" 行"}
+function spAll(){SS.size==DS.length?SS.clear():DS.forEach((_,i)=>SS.add(i));render()}
+function spBulk(){const k=document.getElementById("sbf").value,v=document.getElementById("sbv").value;if(!SS.size){msg="请先勾选行。";return render()}SS.forEach(i=>DS[i][k]=v);msg=`已修改 ${SS.size} 行。`;render()}
+function spDel(){DS=DS.filter((_,i)=>!SS.has(i));SS.clear();render()}
+function spConfirm(){if(!DS.length)return;const bad=DS.filter(r=>checkS(r).e.length).length;if(bad){msg=`还有 ${bad} 行存在错误（红色），请修正或删除后再录入。`;return render()}let ad=0,up=0,sk=0;spMin(DS).rows.forEach(r=>{const k=spKey(r),e=S.spot.find(x=>spKey(x)===k),p=parseFloat(r.price);if(e){if(p>0&&p<parseFloat(e.price)){e.price=r.price;up++}else sk++}else{S.spot.push({id:Date.now()+Math.random(),date:r.date,country:r.country,plant:r.plant,product:r.product,price:r.price});ad++}});msg=`已录入：新增 ${ad} 条${up?`，更新为更低价 ${up} 条`:""}${sk?`，系统里已有同样或更低的价格而跳过 ${sk} 条`:""}。同一天同工厂同产品只保留最低价。`;DS=[];SS.clear();save();render()}
+function spOne(id){S.spot=S.spot.filter(r=>r.id!==id);save();render()}
+function spClr(){if(confirm("确定清空全部现货行情？建议先导出备份。")){S.spot=[];save();render()}}
+function spExp(){dl("现货行情.csv",csvOut([...SH,"最新报盘成本价","现货-报盘价差"],S.spot.map(r=>{const c=cmp(r);return[...SKY.map(k=>r[k]),c?c.cost:"",c?c.diff:""]})))}
+function vSpot(){const ALLS=S.spot.concat(DS),chk=DS.map(r=>checkS(r,ALLS)),ne=chk.filter(c=>c.e.length).length,q=QS.trim().toLowerCase();
+const PQ=plantQ(QS);const L=S.spot.filter(r=>!q||SKY.some(k=>String(r[k]||"").toLowerCase().includes(q))||(PQ&&rowIn(r,PQ.keys)));
+const lbl='style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)"';
+return`<section><h2>现货行情录入</h2><p class="h">粘贴现货报价/成交价文字，或导入 Word、CSV。只记录日期、国家、厂号、品名、价格；价格统一为元/吨：小于 200 的数字按元/公斤自动×1000，“5.2万”“62元/公斤”也会换算。</p>
+<textarea id="sx" oninput="TV.sx=this.value" placeholder="例如：&#10;2026.10.10 成交价&#10;巴西 4029厂 牛腩80VL 52000">${esc(TV.sx||"")}</textarea>
+<div class="row"><button class="b" onclick="spText()">识别文字</button><label ${lbl}>导入 Word<input type="file" accept=".docx" hidden onchange="spDocx(this.files[0])"></label><label ${lbl}>导入 CSV<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="spCsv(this.files[0])"></label><button class="g" onclick="spTpl()">下载模板</button></div></section>
+<section><h2>人工确认</h2><p class="stat">共 ${DS.length} 行，错误 ${ne} 行。红色必须修正，黄色可确认后录入。</p>
+${DS.length?`<div class="row stk"><button class="g" onclick="spAll()">全选/取消</button><span class="stat" id="spcnt" style="font-weight:600;color:var(--ac);white-space:nowrap">已选 ${SS.size} 行</span><select id="sbf">${SKY.filter(k=>k!="price").map(k=>`<option value="${k}">${SH[SKY.indexOf(k)]}</option>`).join("")}</select><input id="sbv" placeholder="批量改为…" style="width:120px"><button class="g" onclick="spBulk()">批量修改</button><button class="d" onclick="spDel()">删除所选</button><button class="g" onclick="spAddRow()">新增一行</button><button class="b" onclick="spConfirm()">确认录入</button></div>
+<div class="tw tv"><table><tr><th></th>${SH.map(h=>`<th>${h}</th>`).join("")}<th>对比报盘</th><th>检查</th></tr>${DS.map((r,i)=>{const c=chk[i],m=cmp(r);return`<tr class="${c.e.length?"e":c.w.length?"w":""}"><td><input type="checkbox" style="min-width:0" ${SS.has(i)?"checked":""} onchange="spTg(${i})"></td>${SKY.map(k=>k=="type"?`<td><select style="padding:4px" onchange="spEd(${i},'type',this.value)"><option ${r.type=="报价"?"selected":""}>报价</option><option ${r.type=="成交"?"selected":""}>成交</option></select></td>`:`<td><input class="${k=="note"?"w":k=="date"?"dt":""}" value="${esc(r[k])}" onchange="spEd(${i},'${k}',this.value)"></td>`).join("")}<td>${m?`报盘成本${m.cost}，价差${m.diff}`:""}</td><td>${c.e.map(x=>`<span class="tag e">${x}</span>`).join(" ")}${c.w.map(x=>`<span class="tag w">${x}</span>`).join(" ")}</td></tr>`}).join("")}</table></div>
+<div class="row"><button class="b" onclick="spConfirm()">确认无误，录入系统</button><button class="d" onclick="DS=[];SS.clear();render()">清空待确认</button></div>`:`<p class="stat">暂无待确认内容。</p><button class="g" onclick="spAddRow()">新增一行</button>`}</section>
+<section><h2>已录入现货行情</h2><p class="h">“对比报盘”＝该产品（同国家）最新国外报盘成本价，价差＝现货价−报盘成本价。</p>
+<div class="row"><input value="${esc(QS)}" placeholder="搜厂号（含同集团）/产品/国家/日期" style="flex:1;min-width:200px" onchange="QS=this.value;render()"><span class="stat">${L.length}/${S.spot.length}</span><select onchange="SSORT=this.value;render()"><option value="new" ${SSORT=="new"?"selected":""}>按日期：近→远</option><option value="old" ${SSORT=="old"?"selected":""}>按日期：远→近</option><option value="ins" ${SSORT=="ins"?"selected":""}>按录入顺序</option></select></div>
+<div class="row"><button class="g" onclick="spExp()">导出现货行情</button><button class="d" onclick="spClr()">清空全部</button></div>
+${grid("spot",sortIdx(L.map(r=>S.spot.indexOf(r)),S.spot,SSORT),{h:"<th>报盘成本</th><th>价差</th><th>检查</th>",f:r=>{const m=cmp(r);return`<td>${m?m.cost:""}</td><td>${m?m.diff:""}</td><td>${tags(checkS(r))}</td>`}})}</section>`}
+const pf=v=>{const x=parseFloat(String(v||"").replace(/[%％,]/g,""));return isNaN(x)?0:x};
+function liveBanner(){if(!S.live.length)return"";const last=S.live.map(r=>r.date).sort().pop(),n=Math.floor((Date.now()-Date.parse(last+"T00:00:00"))/864e5);return n>7?`<section style="border-color:var(--warn);background:var(--warnb)"><p class="stat" style="margin:0;color:var(--warn)">活畜价格最新只到 ${last}，已 ${n} 天未更新。对 Claude 说“更新活畜价格”即可。</p></section>`:""}
+function rateBanner(){const L=S.rates;if(!L.length)return"";const last=L[L.length-1].date,n=Math.floor((Date.now()-Date.parse(last+"T00:00:00"))/864e5);return n>3?`<section style="border-color:var(--warn);background:var(--warnb)"><p class="stat" style="margin:0;color:var(--warn)">汇率最新只到 ${last}，已 ${n} 天未更新。对 Claude 说“更新汇率”即可补上。</p></section>`:""}
+const fxAdd=()=>S.fxAdd==null?0.1:S.fxAdd;
+function rateInfo(d){let v=RIC.get(d);if(!v){v=rateInfo0(d);RIC.set(d,v)}return v}
+function rateInfo0(d){const L=S.rates;const e=L.find(x=>x.date===d);if(e)return{rate:e.rate,d:e.date,src:"table"};let b=null;for(const x of L)if(x.date<=d&&(!b||x.date>b.date))b=x;return b?{rate:b.rate,d:b.date,src:"table"}:{rate:S.rate,d:"",src:"default"}}
+function rateCell(r){if(r.cur!=="USD")return"";const i=rateInfo(r.date);return +(i.rate+fxAdd()).toFixed(4)+(i.src=="default"?"（默认）":i.d!==r.date?`（取${i.d.slice(5)}）`:"")}
+function setRate(d,v){RIC.clear();if(!d||!(v>0))return false;const e=S.rates.find(x=>x.date===d);if(e){e.rate=v;delete e.s}else S.rates.push({date:d,rate:v});S.rates.sort((a,b)=>a.date.localeCompare(b.date));return true}
+const MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};let ndLast="";
+const nd=s=>{s=String(s||"");const P=(y,m,d)=>`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;let m=s.match(/(20\d\d)[-\/.年]\s*(\d{1,2})[-\/.月]\s*(\d{1,2})/)||s.match(/(?<!\d)(20\d\d)(\d{2})(\d{2})(?!\d)/);if(m){ndLast=m[0];return P(m[1],m[2],m[3])}
+m=s.match(/(?<!\d)(\d{1,2})[\/-](\d{1,2})[\/-](20\d\d)(?!\d)/);if(m){ndLast=m[0];const a=+m[1],b=+m[2];return a>12?P(m[3],b,a):P(m[3],a,b)}
+m=s.match(/(?<!\d)(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s,]*(\d{2,4})(?!\d)/);if(m&&MON[m[2].toLowerCase()]){ndLast=m[0];return P(m[3].length==2?"20"+m[3]:m[3],MON[m[2].toLowerCase()],m[1])}return""};
+function addRate(){const d=document.getElementById("rd").value,v=parseFloat(document.getElementById("rv").value);if(!setRate(d,v)){msg="请填写日期和汇率。";return render()}save();msg=(v<5||v>10?"提醒：汇率数值看起来不太对，请核对。":"已保存。");render()}
+function rateOf(l){const d=nd(l);if(!d)return null;const ns=[...l.replace(ndLast,"").matchAll(/\d+(?:\.\d+)?/g)].map(x=>parseFloat(x[0]));if(!ns.length)return null;let v=ns.length>=4?ns[2]:ns[0];if(v>100)v=v/100;v=+v.toFixed(4);return v>=5&&v<=10?[d,v]:null}
+function pasteRates(){let n=0;document.getElementById("rt").value.split(/\r?\n/).forEach(l=>{const r=rateOf(l);if(r&&setRate(r[0],r[1]))n++});save();msg=`已识别并保存 ${n} 天的汇率。`;render()}
+function impRates(f){if(!f)return;readFile(f,t=>{let n=0;const bad=[],rs=csvParse(t);rs.forEach((a,i)=>{const line=a.join(" "),r=rateOf(line);if(r){if(setRate(r[0],r[1]))n++}else if(i>0&&line.trim())bad.push(line.slice(0,30))});save();msg=`已导入 ${n} 天的汇率。`+(n==0?`没有识别到“日期 + 汇率”（汇率应在 5 到 10 之间）。读到的前几行：${rs.slice(0,3).map(a=>a.join(" | ")).join(" / ")||"（空文件）"}`:"")+(bad.length&&n?`\n有 ${bad.length} 行没识别：${bad.slice(0,5).join("；")}`:"");render()})}
+function expRates(){dl("美元汇率表.csv",csvOut(["日期","美元汇率"],S.rates.length?S.rates.map(x=>[x.date,x.rate]):[["示例：请删除本行",""]]))}
+function delRate(d){S.rates=S.rates.filter(x=>x.date!==d);save();render()}
+function vRate(){const L=S.rates.slice().reverse().slice(0,90);return`<section><h2>美元汇率表</h2><p class="h">按日期记录美元兑人民币汇率（口径：中国银行现汇卖出价，取当日最后一次牌价；已录入 2026-06-17 至 2026-10-15；更早的日期暂未录入）。可直接粘贴新浪/中行的历史牌价表，每行含日期和五列牌价，我会自动取“现汇卖出价”并折算成每1美元）。报盘的人民币成本价按报盘日期当天的汇率计算；当天没有记录时取此前最近一天；都没有时才用“默认汇率”。</p>
+<div class="row"><input type="date" id="rd" value="${today()}" style="width:150px"><input type="number" step="0.0001" id="rv" placeholder="汇率" style="width:100px"><button class="b" onclick="addRate()">添加/更新</button></div>
+<textarea id="rt" oninput="TV.rt=this.value" style="min-height:70px" placeholder="批量粘贴，每行一天：日期 汇率&#10;2026.10.9 7.1234">${esc(TV.rt||"")}</textarea>
+<div class="row"><button class="g" onclick="pasteRates()">识别粘贴内容</button><label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入 CSV<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="impRates(this.files[0])"></label><button class="g" onclick="expRates()">下载/导出汇率表</button></div>
+<p class="stat">默认汇率（汇率表没有可用日期时备用）：<input type="number" step="0.0001" value="${S.rate}" style="width:90px;display:inline-block" onchange="S.rate=+this.value||S.rate;save();render()"></p>
+${grid("rates",L.map(x=>S.rates.indexOf(x)))}</section><section><h2>其他币种汇率（澳元、新西兰元、雷亚尔等）</h2><p class="h">按日期记录。活畜价格会按“价格日期”自动换算成人民币：当天没有汇率就取这之前最近的一天，之前都没有就取最早的一天。美元用上面的美元汇率表，人民币为 1。可以直接在表里改，也可以粘贴，每行含币种、日期、汇率，如“澳元 2026-11-06 461.10”（大于50的数按每100外币折算）。</p>
+<textarea id="rtf" oninput="TV.rtf=this.value" style="min-height:70px" placeholder="澳元 2026-11-06 461.10&#10;新西兰元 2026-11-06 372.27&#10;雷亚尔 2026-11-06 1.25">${esc(TV.rtf||"")}</textarea>
+<div class="row"><button class="g" onclick="pasteFx()">识别粘贴内容</button></div>
+${grid("fxd",S.fxd.map((_,i)=>i).reverse())}</section><section><h2>云端数据（自动更新）</h2><p class="h">如果你另外搭了“每天自动取汇率和活畜价格”的云端程序，它会生成一个数据文件。把程序放在自己的网址上时，打开程序会自动读取；在这个页面里不能联网，可以把数据文件下载下来，点下面的按钮导入。已存在的数据只会更新“系统导入的”，不会覆盖你手动改过的。</p><div class="row"><label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入云端数据文件<input type="file" accept=".json" hidden onchange="cloudFile(this.files[0])"></label></div><p class="stat">上次同步：${S.cloudAt?esc(String(S.cloudAt).slice(0,19).replace("T"," ")):"还没有"}</p></section>`}
+const TAXC=["巴西","阿根廷","乌拉圭","巴拉圭","澳大利亚","新西兰","美国","加拿大","智利","玻利维亚","哥斯达黎加","墨西哥","哥伦比亚","尼加拉瓜","巴拿马","西班牙","德国","波兰","爱尔兰","法国","荷兰","乌克兰","白俄罗斯","俄罗斯"];
+function taxFor(c){const k=ctry(c)||c;return S.tax.find(t=>(ctry(t.country)||t.country)===k)}
+function taxTpl(){dl("税率模板.csv",csvOut(["国家","关税率%","增值税率%","附加关税率%(选填)","备注(选填)"],S.tax.length?S.tax.map(t=>[t.country,t.duty,t.vat,t.extra||0,t.note||""]):TAXC.map(c=>[c,"","","",""])))}
+function vTax(){return`<section><h2>税率模板（按国家）</h2><p class="h">${S.tax.length?"":"尚未导入税率，成本价暂不计算。"}下载模板（已列好常见国家），填入关税率%、增值税率%，需要的话填附加关税率%（如超配额附加关税），再导入。留空的国家不会导入。以后税率有变，改完重新导入即可，所有成本价立即按新税率重算。成本价 = 价格 ×（美元时按报盘日汇率+汇率加成）×（1+关税+附加关税）×（1+增值税）+加价（默认500元/吨），再四舍五入到百位。</p>
+<div class="row"><span class="stat">每吨加价/杂费（元）：</span><input type="number" value="${S.addon==null?500:S.addon}" style="width:100px" onchange="S.addon=pf(this.value);save();render()"><span class="stat">　汇率加成（元）：</span><input type="number" step="0.01" value="${S.fxAdd==null?0.1:S.fxAdd}" style="width:80px" onchange="S.fxAdd=pf(this.value);save();render()"></div>
+<div class="row"><button class="g" onclick="taxTpl()">下载/导出税率模板</button><label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入税率<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="impTax(this.files[0])"></label></div>
+${grid("tax",rev(S.tax))}</section>`}
+function impTax(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t),h0=(rs[0]||[]).map(String),ix=(re,ex)=>h0.findIndex(c=>re.test(c)&&!(ex&&ex.test(c)));let ci=ix(/国家/),di=ix(/关税/,/附加/),vi=ix(/增值/),ei=ix(/附加/),ni=ix(/备注/);if(ci<0)ci=0;if(di<0)di=1;if(vi<0)vi=2;if(ni<0)ni=ei>=0?4:3;
+const r=rs.slice(1).filter(a=>a[ci]&&!/^示例/.test(a[ci])&&(String(a[di]||"").trim()!==""||String(a[vi]||"").trim()!=="")).map(a=>({country:a[ci].trim(),duty:pf(a[di]),vat:pf(a[vi]),extra:ei>=0?pf(a[ei]):0,note:(a[ni]||"").trim()}));S.tax=r;S.taxReal=true;save();msg=`已更新 ${r.length} 个国家的税率。`;render()})}
+function lev(a,b){const m=a.length,n=b.length;if(Math.abs(m-n)>2)return 9;const d=Array.from({length:m+1},(_,i)=>[i]);for(let j=1;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function simScore(q,s){q=String(q).toLowerCase().trim();s=String(s||"").toLowerCase().trim();if(!q||!s)return 0;if(s===q)return 4;if(s.includes(q)||q.includes(s))return 3;const cq=canon(q),cs=canon(s);if(cq===cs)return 3.4;if((cs.includes(cq)||cq.includes(cs))&&Math.min(cq.length,cs.length)>=3)return 2.6;if(lev(cq,cs)<=1&&Math.min(q.length,s.length)>=3)return 2.2;const A=new Set([...cq]),B=new Set([...cs]);let c=0;A.forEach(x=>{if(B.has(x))c++});const o=c/Math.min(A.size,B.size);return c>=2&&o>=0.67&&Math.min(q.length,s.length)>=3?o:0}
+function mapMatches(q){const sn=stdName(q),out=[];S.map.forEach((m,i)=>{let sc=Math.max(simScore(q,m.en),simScore(q,m.cn),simScore(q,m.std));if(sn&&m.std===sn)sc=Math.max(sc,3.5);if(sc>0)out.push([i,sc])});return out.sort((a,b)=>b[1]-a[1])}
+function addMapFromQ(){const q=MQ.trim();if(!q)return;S.map.push({en:"",cn:q,std:""});SN.clear();save();msg=`已在对应表末尾新增“${q}”，请到下面填写标准名称。`;MQ="";render()}
+function mapRes(){const q=MQ.trim(),ms=mapMatches(q),rl=(S.rules||[]).filter(r=>[r.inc,r.std].some(x=>simScore(q,x)>=2.6));
+return`<p class="stat">与“${esc(q)}”名字相近的对应记录 ${ms.length} 条（按相似度排序，可直接修改或删除）：${stdName(q)?` 系统目前把它对应到“${esc(stdName(q))}”。`:" 系统目前没有把它对应到任何标准名称。"}</p>${ms.length?grid("map",ms.map(x=>x[0])):`<p class="stat">没有找到近似的产品名称。</p>`}<div class="row"><button class="g" onclick="addMapFromQ()">把“${esc(q)}”新增到对应表</button></div>${rl.length?`<p class="stat">相关的特殊规则：${rl.map(r=>esc((r.country?r.country+"：":"")+r.inc+" → "+r.std)).join("；")}</p>`:""}`}
+function vMap(){return`<section><h2>产品名称对应</h2><p class="h">列：英文名、中文名、我司标准名称。识别时凭此把不同叫法归到同一标准名称。</p>
+<div class="row"><input value="${esc(MQ)}" placeholder="搜索产品名称（显示所有名字相近的产品）" style="flex:1;min-width:180px" onchange="MQ=this.value;render()"><button class="g" onclick="MQ='';render()">清除</button></div>
+<div class="row"><button class="g" onclick="dl('产品对应模板.csv',csvOut(['英文名','中文名','我司标准名称'],S.map.map(m=>[m.en,m.cn,m.std])))">下载/导出对应模板</button>
+<label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">导入对应表<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="impMap(this.files[0])"></label></div>
+${MQ.trim()?mapRes():grid("map",rev(S.map))}</section><section><h2>特殊对应规则</h2><p class="h">优先于上面的对应表。“包含词”：用 + 连接表示必须同时出现，用 | 分隔表示任一组满足即可（如 缺失+牛前|缺失+牛后）；“排除词”出现则不适用；命中后产品名对应到“标准名称”。填了“国家”的规则只对该国的报盘生效，并且优先于其他规则（如巴西的五切、六切、七切、八切都按件套）。</p><div class="row"><button class="g" onclick="restoreRules()">恢复默认规则（只补缺的，不改你已有的）</button></div>${grid("rules",rev(S.rules))}</section><section><h2>产品组成说明</h2><p class="h">记录件套、五切六切七切、前后龟、后四、后六这些组合产品各包含哪些部位，仅作参考，方便查阅。</p><div class="row"><button class="g" onclick="restoreCombos()">恢复默认说明（只补缺的）</button></div>${grid("combos",S.combos.map((_,i)=>i))}</section><section><h2>易混淆名称（按价格区分）</h2><p class="h">有些名称不同厂家指的不是同一个产品（如“肋条”可能是短肋条，也可能是胸部/肩部肋条）。系统会按近期同类价格自动判断（相差25%以内）；拿不准时，标准名称列会出现下拉框，由你来选实际产品，选过的价格会成为以后的参考。</p><div class="row"><button class="g" onclick="restoreAmb()">恢复默认（只补缺的）</button></div>${grid("amb",S.amb.map((_,i)=>i))}</section><section><h2>厂家特殊叫法</h2><p class="h">同一个叫法，不同工厂指的产品不一样（如 26 厂报盘里的“大条”实际是粗修大米龙）。识别时，该厂号的报盘里出现这个叫法，就自动换成“实际产品”。</p>${grid("plantAlias",S.plantAlias.map((_,i)=>i))}</section><section><h2>厂家自动前缀</h2><p class="h">这个厂的产品全是同一类（如阿根廷 1085 厂都是谷饲），识别时自动给该厂所有产品名加上前缀，已带前缀的不重复加。</p>${grid("plantPrefix",S.plantPrefix.map((_,i)=>i))}</section>`}
+function impMap(f){if(!f)return;readFile(f,t=>{const r=csvParse(t).slice(1).filter(a=>a[2]).map(a=>({en:a[0].trim(),cn:a[1].trim(),std:a[2].trim()}));S.map=r;SN.clear();save();msg=`已更新 ${r.length} 条对应关系。`;render()})}
+const SEL2={},GMAX={};function gMore(k){GMAX[k]=(GMAX[k]||50)+50;render()}
+const GC={offers:[{k:"date",l:"报盘日期"},{k:"country",l:"国家"},{k:"plant",l:"厂号"},{k:"brand",l:"品牌"},{k:"product",l:"产品"},{l:"标准名称",calc:stdCell},{l:"检查",calc:r=>tags(check(r,S.offers))},{k:"spec",l:"规格"},{k:"price",l:"价格/吨"},{k:"cur",l:"币种"},{l:"人民币成本价",calc:r=>calcAt(r)||costWhy(r)},{k:"pay",l:"首付比例"},{k:"ship",l:"船期"},{k:"qty",l:"柜数"},{k:"note",l:"备注"},{l:"计算汇率",calc:r=>rateCell(r)}],spot:SKY.map((k,i)=>({k,l:SH[i]})),factories:FK.map((k,i)=>({k,l:FH[i]})),map:[{k:"en",l:"英文名"},{k:"cn",l:"中文名"},{k:"std",l:"我司标准名称"}],tax:[{k:"country",l:"国家"},{k:"duty",l:"关税%",num:1},{k:"vat",l:"增值税%",num:1},{k:"extra",l:"附加关税%",num:1},{k:"note",l:"备注"}],rates:[{k:"date",l:"日期"},{k:"rate",l:"美元汇率",num:1}]};
+const BLANK={offers:()=>({id:Date.now()+Math.random(),date:today(),country:"",brand:"",plant:"",product:"",spec:"",ship:"",qty:"",cur:"USD",price:"",pay:"",note:""}),spot:()=>({id:Date.now()+Math.random(),date:today(),country:"",plant:"",product:"",price:""}),factories:()=>({country:"",plant:"",brand:"",group:"",contact:"",phone:"",email:"",wechat:"",note:""}),map:()=>({en:"",cn:"",std:""}),tax:()=>({country:"",duty:0,vat:0,extra:0,note:""}),rates:()=>({date:today(),rate:S.rate})};
+const gset=k=>SEL2[k]||(SEL2[k]=new Set());
+const tags=c=>c.e.map(x=>`<span class="tag e">${x}</span>`).join(" ")+c.w.map(x=>`<span class="tag w">${x}</span>`).join(" ");
+function grid(key,all,ex){const cols=GC[key],sel=gset(key),total=all.length,cap=GMAX[key]||50,idxs=all.slice(0,cap);
+return`<div class="row stk"><button class="g" onclick="gAll('${key}',[${idxs}])">全选/取消</button><select id="gf_${key}">${cols.filter(c=>c.k).map(c=>`<option value="${c.k}">${c.l}</option>`).join("")}</select><input id="gv_${key}" placeholder="批量改为…" style="width:120px"><button class="g" onclick="gBulk('${key}')">批量修改</button><button class="d" id="gdel_${key}" onclick="gDel('${key}')">删除所选(${sel.size})</button><button class="g" onclick="gAdd('${key}')">新增一行</button></div><p class="stat">直接在表格里改，改完自动保存。${total>cap?`共 ${total} 条，仅显示前 ${cap} 条。<button class="g" style="padding:2px 10px" onclick="gMore('${key}')">再显示50条</button>`:""}</p>
+${idxs.length?`<div class="tw tv"><table><tr><th></th>${cols.map(c=>`<th>${c.l}</th>`).join("")}${ex?ex.h:""}</tr>${idxs.map(i=>{const r=S[key][i];return`<tr><td><input type="checkbox" style="min-width:0" ${sel.has(i)?"checked":""} onchange="gTg('${key}',${i})"></td>${cols.map(c=>c.calc?`<td>${c.calc(r)}</td>`:`<td><input class="${/date|eta|due/.test(c.k)?"dt":""}" value="${esc(r[c.k])}" onchange="gEd('${key}',${i},'${c.k}',this.value)"></td>`).join("")}${ex?ex.f(r):""}</tr>`}).join("")}</table></div>`:`<p class="stat">暂无数据。</p>`}`}
+function gVal(key,k,v){const c=GC[key].find(x=>x.k==k);v=String(v).trim();if(key=="goods"){const o={[k]:v,fin:"否",invoice:""};if(k=="fin")return/是|y|1|true/i.test(v)?"是":"否";if(k=="invoice")return/有|是|y/i.test(v)?"有":/无|否|n/i.test(v)?"无":v;if(["eta","due","dpdate","fend","indate","outdate"].includes(k))return nd(v)||v;if(k=="country")return ctry(v)||v;if(k=="status")return GSTAT.find(s=>v!==s&&v.includes(s))||v}if(key=="fxd"&&k=="cur")return curOf(v)||v.toUpperCase();if(key=="live"){const f={species:speciesOf,kind:kindOf,cur:curOf,unit:unitOf,country:s=>ctry(s)}[k];if(f)return f(v)||v}if(c&&c.num)return pf(v);if(k=="date")return nd(v)||v;if(key=="offers"&&k=="cur")return/rmb|人民币|cny/i.test(v)?"RMB":"USD";if(key=="offers"&&k=="pay"){const m=v.match(/\d+(?:\.\d+)?/);return m?m[0]+"%":""}return v}
+function gAfter(key){SN.clear();RIC.clear();AMBC=null;if(key=="rates")S.rates.sort((a,b)=>a.date.localeCompare(b.date));if(key=="factories"){const gm={};S.factories.forEach(f=>{if(f.group){const kk=(f.country||"")+"\u0001"+f.group;(gm[kk]=gm[kk]||{c:f.country,ps:[]}).ps.push(f.plant)}});Object.values(gm).forEach(x=>{if(x.ps.length>1)learnGroups([{plant:x.ps.join("/"),country:x.c}])})}if(key=="rates")SEL2[key]=new Set();save()}
+function gEd(key,i,k,v){S[key][i][k]=gVal(key,k,v);if(key=="rates"||key=="live"||key=="fxd")delete S[key][i].s;gAfter(key);msg="已保存修改。";lazyRender()}
+function gTg(key,i){const s=gset(key);s.has(i)?s.delete(i):s.add(i);const b=document.getElementById("gdel_"+key);if(b)b.textContent="删除所选("+s.size+")"}
+function gAll(key,ids){const s=gset(key);if(s.size==ids.length)s.clear();else ids.forEach(i=>s.add(i));render()}
+function gBulk(key){const s=gset(key);if(!s.size){msg="请先勾选行。";return render()}const k=document.getElementById("gf_"+key).value,v=document.getElementById("gv_"+key).value,n=s.size;s.forEach(i=>{S[key][i][k]=gVal(key,k,v);if(key=="rates"||key=="live"||key=="fxd")delete S[key][i].s});gAfter(key);msg=`已批量修改并保存 ${n} 行。`;render()}
+function gDel(key){const s=gset(key);if(!s.size){msg="请先勾选行。";return render()}if(!confirm(`确定删除所选 ${s.size} 行？`))return;S[key]=S[key].filter((_,i)=>!s.has(i));SEL2[key]=new Set();gAfter(key);msg="已删除并保存。";render()}
+function gAdd(key){Q="";QS="";QF="";S[key].push(BLANK[key]());gAfter(key);msg="已新增一行，在表格最上面填写。";render()}
+const rev=a=>a.map((_,i)=>i).reverse();
+function ambMap(){if(AMBC)return AMBC;AMBC=new Map();
+for(const g of S.amb||[]){const cands=String(g.cands||"").split(/[|,，、]/).map(s=>s.trim()).filter(Boolean);if(!g.name||cands.length<2)continue;
+const info=cands.map(c=>{const ps=S.offers.filter(o=>o.cur==="USD"&&(o.pick===c||(!o.pick&&stdName(pn(o))===c))&&parseFloat(o.price)>0).map(o=>+o.price).sort((a,b)=>a-b);return{c,n:ps.length,ref:ps.length?ps[ps.length>>1]:0}});AMBC.set(g.name,info)}
+return AMBC}
+function ambOf(r){const base=stdName(pn(r))||String(r.product||"").trim(),m=ambMap().get(base);if(!m)return null;if(r.pick)return{kind:"ok",std:r.pick,info:m};
+const p=parseFloat(r.price);if(!(p>0)||r.cur!=="USD")return{kind:"ask",info:m};
+const near=m.filter(x=>x.ref>0&&Math.abs(p/x.ref-1)<=0.25);if(near.length===1)return{kind:"ok",std:near[0].c,auto:1,info:m};return{kind:"ask",info:m}}
+function countryRule(r){const t=String(pn(r)).toLowerCase(),c=ctry(r.country)||r.country;if(!c)return"";for(const x of(S.rules||[])){if(!x.country||!x.std||!x.inc)continue;if((ctry(x.country)||x.country)!==c)continue;const ex=String(x.exc||"").split(/[+|]/).filter(Boolean);if(ex.some(w=>t.includes(w.toLowerCase())))continue;if(String(x.inc).split("|").some(g=>g.split("+").filter(Boolean).every(w=>t.includes(w.toLowerCase()))))return x.std}return""}
+function stdOf(r){const cr=countryRule(r);if(cr)return cr;const a=ambOf(r);return a&&a.kind==="ok"?a.std:stdName(pn(r))}
+function setPick(uid,v){const t=[...D,...S.offers].find(x=>x.uid===uid);if(!t)return;t.pick=v;AMBC=null;save();msg=v?`已选定：${t.product} → ${v}。以后同类价格会按这个自动区分。`:"已取消选择。";lazyRender()}
+function stdCell(r){if(!r.uid)r.uid=Math.random().toString(36).slice(2);const a=ambOf(r);
+if(a&&a.kind==="ask")return`<select style="min-width:120px;border-color:var(--warn)" onchange="setPick('${r.uid}',this.value)"><option value="">⚠请选实际产品</option>${a.info.map(x=>`<option value="${esc(x.c)}">${esc(x.c)}${x.ref?"（参考"+x.ref+"）":""}</option>`).join("")}</select>`;
+if(a&&a.kind==="ok")return esc(a.std)+(a.auto?"（按价格）":"")+(r.pick?` <a style="color:var(--mut)" onclick="setPick('${r.uid}','')">改</a>`:"");
+const s=stdOf(r);return s||`<input placeholder="填标准名称" style="min-width:110px" onchange="setStd(this.value,'${encodeURIComponent(pn(r))}')">`}
+function restoreCombos(){let n=0;DEF_COMBOS.forEach(x=>{if(!S.combos.some(r=>r.name===x.name)){S.combos.push({...x});n++}});save();msg=n?`已补回 ${n} 条产品组成说明。`:"产品组成说明都在。";render()}
+function restoreAmb(){let n=0;DEF_AMB.forEach(x=>{if(!S.amb.some(r=>r.name===x.name)){S.amb.push({...x});n++}});AMBC=null;save();msg=n?`已补回 ${n} 条易混淆名称。`:"易混淆名称都在。";render()}
+function restoreRules(){let n=0;DEF_RULES.forEach(x=>{if(!S.rules.some(r=>r.inc===x.inc&&r.std===x.std)){S.rules.push({...x});n++}});SN.clear();save();msg=n?`已补回 ${n} 条默认规则。`:"默认规则都在，没有需要补的。";render()}
+function setStd(v,enc){v=String(v).trim();if(!v)return;const name=decodeURIComponent(enc),e=S.map.find(m=>m.cn===name);if(e)e.std=v;else S.map.push({en:"",cn:name,std:v});SN.clear();save();msg=`已记住：${name} → ${v}，以后识别会自动对应。`;lazyRender()}
+GC.randPlants=[{k:"country",l:"国家"},{k:"plants",l:"“所有厂随机”对应的厂号（用/分隔）"}];BLANK.randPlants=()=>({country:"",plants:""});GC.fxd=[{k:"cur",l:"币种"},{k:"date",l:"日期"},{k:"rate",l:"汇率(兑人民币)",num:1}];BLANK.fxd=()=>({cur:"AUD",date:today(),rate:0});GC.customers=[{k:"name",l:"客户名称"},{k:"addr",l:"地址"},{k:"contact",l:"联系人"},{k:"title",l:"职务"},{k:"phone",l:"电话"},{k:"wechat",l:"微信"},{k:"email",l:"邮箱"},{k:"type",l:"分类"},{k:"note",l:"备注"}];BLANK.customers=()=>({id:Date.now()+Math.random(),name:"",addr:"",contact:"",title:"",phone:"",wechat:"",email:"",type:"",note:""});GC.plantPrefix=[{k:"country",l:"国家"},{k:"plant",l:"厂号"},{k:"prefix",l:"自动加的前缀"}];BLANK.plantPrefix=()=>({country:"",plant:"",prefix:""});GC.plantAlias=[{k:"plant",l:"厂号"},{k:"from",l:"报盘里的叫法"},{k:"to",l:"实际产品"}];BLANK.plantAlias=()=>({plant:"",from:"",to:""});GC.amb=[{k:"name",l:"易混淆名称"},{k:"cands",l:"可能的实际产品（用|分隔）"}];BLANK.amb=()=>({name:"",cands:""});GC.combos=[{k:"name",l:"名称"},{k:"items",l:"包含部位"}];BLANK.combos=()=>({name:"",items:""});GC.sources=[{k:"country",l:"国家"},{k:"org",l:"机构/网站"},{k:"content",l:"采集内容"},{k:"url",l:"网址（可补充）"}];BLANK.sources=()=>({country:"",org:"",content:"",url:""});GC.events=[{k:"date",l:"日期"},{k:"note",l:"备注"}];BLANK.events=()=>({date:today(),note:""});GC.rules=[{k:"country",l:"国家（选填，只对该国生效）"},{k:"inc",l:"包含词"},{k:"exc",l:"排除词"},{k:"std",l:"标准名称"}];GC.fx=[{k:"cur",l:"币种"},{k:"rate",l:"兑人民币汇率",num:1}];GC.live=[{k:"date",l:"日期"},{k:"country",l:"国家"},{k:"species",l:"品种"},{k:"kind",l:"类型"},{k:"price",l:"价格"},{k:"cur",l:"币种"},{k:"unit",l:"单位"},{k:"fx",l:"汇率(兑人民币,可空)"},{k:"source",l:"来源"},{k:"note",l:"备注"}];
+BLANK.rules=()=>({country:"",inc:"",exc:"",std:""});BLANK.fx=()=>({cur:"",rate:0});BLANK.live=()=>({id:Date.now()+Math.random(),date:today(),country:"",species:"牛",kind:"活重",price:"",cur:"USD",unit:"公斤",fx:"",source:"",note:""});
+let QL="",LS="牛",LK="活重",SKL=[];
+const UNITS=[["公斤",1],["100公斤",.01],["磅",2.20462],["100磅(cwt)",1/45.3592],["吨",.001],["阿罗瓦(15kg)",1/15]];
+const LCUR={澳大利亚:"AUD",新西兰:"NZD",美国:"USD",巴西:"BRL",阿根廷:"ARS",乌拉圭:"USD",玻利维亚:"BOB",中国:"CNY",欧洲:"EUR",德国:"EUR",法国:"EUR",西班牙:"EUR",荷兰:"EUR",波兰:"EUR",爱尔兰:"EUR"};
+const speciesOf=l=>/牛|cattle|beef|steer|heifer/i.test(l)?"牛":/羊|lamb|sheep|mutton/i.test(l)?"羊":/猪|pig|hog|pork|swine/i.test(l)?"猪":"";
+const kindOf=l=>/胴体|屠体|carcass|\bCW\b/i.test(l)?"胴体":/活|live|\bLW\b/i.test(l)?"活重":"";
+const CURS=[[/澳元|AUD|A\$/i,"AUD"],[/新西兰元|NZD|NZ\$/i,"NZD"],[/美元|美金|USD|US\$|\$/i,"USD"],[/雷亚尔|BRL|R\$/i,"BRL"],[/阿根廷比索|ARS/i,"ARS"],[/乌拉圭比索|UYU/i,"UYU"],[/玻利维亚诺|BOB/i,"BOB"],[/欧元|EUR|€/i,"EUR"],[/人民币|RMB|CNY|¥|￥|元/i,"CNY"]];
+const curOf=l=>{for(const [re,v] of CURS)if(re.test(l))return v;return""};
+const unitOf=l=>/100\s*(?:kg|公斤)|每百公斤/i.test(l)?"100公斤":/cwt|100\s*(?:lb|磅)|百磅/i.test(l)?"100磅(cwt)":/\/\s*(?:lb|磅)|每磅/i.test(l)?"磅":/吨|\/\s*(?:t|mt)\b/i.test(l)?"吨":/arroba|@|阿罗瓦/i.test(l)?"阿罗瓦(15kg)":/kg|公斤|千克/i.test(l)?"公斤":"";
+function mergeCloud(j){let a=0,u=0;const num=x=>+(+x).toFixed(4);
+(j.rates||[]).forEach(x=>{const d=nd(x.date),v=num(x.rate);if(!d||!(v>5&&v<10))return;const e=S.rates.find(r=>r.date===d);if(!e){S.rates.push({date:d,rate:v,s:1});a++}else if(e.s&&e.rate!==v){e.rate=v;u++}});
+S.rates.sort((x,y)=>x.date.localeCompare(y.date));
+(j.fxd||[]).forEach(x=>{const d=nd(x.date),v=num(x.rate),c=String(x.cur||"").toUpperCase();if(!d||!c||!(v>0))return;const e=S.fxd.find(r=>r.cur===c&&r.date===d);if(!e){S.fxd.push({cur:c,date:d,rate:v,s:1});a++}else if(e.s&&e.rate!==v){e.rate=v;u++}});
+S.fxd.sort((x,y)=>x.date.localeCompare(y.date));
+(j.live||[]).forEach(x=>{if(!x.key||!x.date||!(parseFloat(x.price)>0))return;const o={id:"s"+x.key,key:x.key,date:nd(x.date)||x.date,country:x.country||"",species:x.species||"",kind:x.kind||"活重",price:String(x.price),cur:x.cur||"CNY",unit:x.unit||"公斤",fx:x.fx||"",source:x.source||"",note:x.note||"",s:1},e=S.live.find(r=>r.key===x.key);if(!e){S.live.push(o);a++}else if(e.s){Object.assign(e,o);u++}});
+S.cloudAt=j.updated||new Date().toISOString();INCLOUD=true;save();INCLOUD=false;RIC.clear();return[a,u]}
+function cloudFile(f){if(!f)return;readFile(f,t=>{let j;try{j=JSON.parse(t)}catch(e){msg="这个文件不是有效的数据文件。";return render()}if(!j||!(j.rates||j.fxd||j.live)){msg="文件里没有找到汇率或活畜价格数据。";return render()}const[a,u]=mergeCloud(j);msg=`已导入云端数据：新增 ${a} 条，更新 ${u} 条（你手动改过的不会被覆盖）。`;render()})}
+function autoCloud(){try{fetch("data/latest.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&(j.rates||j.fxd||j.live)){const[a,u]=mergeCloud(j);if(a||u){msg=`已自动同步云端数据：新增 ${a} 条，更新 ${u} 条。`;render()}}}).catch(()=>{})}catch(e){}}
+function rateOfCur(c,d){c=String(c||"").toUpperCase();if(c==="CNY")return 1;if(c==="USD")return rateInfo(d).rate;const L=S.fxd.filter(x=>String(x.cur).toUpperCase()===c&&x.rate>0);if(!L.length)return 0;let b=null;for(const x of L)if(x.date<=d&&(!b||x.date>b.date))b=x;if(b)return b.rate;let n=null;for(const x of L)if(!n||x.date<n.date)n=x;return n.rate}
+function pasteFx(){let n=0;String(document.getElementById("rtf").value).split(/\r?\n/).forEach(l=>{const c=curOf(l),d=nd(l);if(!c||c==="CNY"||c==="USD"||!d)return;const ns=[...l.replace(ndLast,"").matchAll(/\d+(?:\.\d+)?/g)].map(x=>parseFloat(x[0]));if(!ns.length)return;let v=ns.length>=4?ns[2]:ns[0];if(v>50)v/=100;v=+v.toFixed(4);if(!(v>0.01&&v<50))return;const e=S.fxd.find(x=>x.cur===c&&x.date===d);if(e){e.rate=v;delete e.s}else S.fxd.push({cur:c,date:d,rate:v});n++});S.fxd.sort((a,b)=>a.date.localeCompare(b.date));save();msg=`已识别并保存 ${n} 条其他币种汇率。`;render()}
+function liveCny(r){const p=parseFloat(r.price);if(!(p>0))return 0;const u=UNITS.find(x=>x[0]===r.unit)||UNITS[0],c=String(r.cur||"CNY").toUpperCase();const fx0=parseFloat(r.fx),fx=fx0>0?fx0:rateOfCur(c,r.date)||((S.fx.find(x=>String(x.cur).toUpperCase()===c)||{}).rate||0);return fx>0?+(p*u[1]*fx).toFixed(2):0}
+function parseLive(t){SKL=[];const rows=[];let c={date:today(),country:"",species:"",kind:"",cur:"",unit:""};
+for(const raw of t.split(/\r?\n/)){let l=normL(raw).trim();if(!l)continue;
+const dm=l.match(/(20\d\d)[-\/.年](\d{1,2})[-\/.月](\d{1,2})/);if(dm){c.date=`${dm[1]}-${dm[2].padStart(2,"0")}-${dm[3].padStart(2,"0")}`;l=l.replace(dm[0]," ")}
+const k=ctry(l),sp=speciesOf(l),kd=kindOf(l),cu=curOf(l),un=unitOf(l);
+const ns=[...l.replace(/100\s*(?:kg|公斤|lb|磅)/gi," ").matchAll(/(?<![\d.])(\d+(?:\.\d+)?)(?![\d.])/g)].map(x=>parseFloat(x[1])).filter(x=>x>0);
+if(ns.length&&(sp||(k&&c.species))){const co=k||c.country;rows.push({id:Date.now()+Math.random(),date:c.date,country:co,species:sp||c.species,kind:kd||c.kind||"活重",price:String(ns[ns.length-1]),cur:cu||c.cur||LCUR[co]||"CNY",unit:un||c.unit||"公斤",source:"",note:""});continue}
+if(k||sp||kd||cu||un){if(k)c.country=k;if(sp)c.species=sp;if(kd)c.kind=kd;if(cu)c.cur=cu;if(un)c.unit=un}else if(ns.length)SKL.push(l)}
+return rows}
+function liveTpl(){dl("活畜价格模板.csv",csvOut(["日期","国家","品种(牛/羊/猪)","类型(活重/胴体)","价格","币种","单位","来源","备注"],[[today(),"澳大利亚","牛","活重","7.85","AUD","公斤","示例行，导入前请删除",""]]))}
+function liveExp(){dl("活畜价格.csv",csvOut(["日期","国家","品种","类型","价格","币种","单位","来源","备注","人民币元/公斤"],S.live.map(r=>[r.date,r.country,r.species,r.kind,r.price,r.cur,r.unit,r.source,r.note,liveCny(r)||""])))}
+function liveText(){const r=parseLive(document.getElementById("lx").value);if(!r.length){msg="没有识别到价格，请检查文字里是否有品种（牛/羊/猪）和价格。";return render()}S.live.push(...r);save();msg=`已识别并保存 ${r.length} 条，请在下面表格核对币种和单位（识别不到时按国家默认）。`+(SKL.length?`\n另有 ${SKL.length} 行没识别出品种，已跳过：\n`+SKL.slice(0,10).join("\n"):"");render()}
+function liveCsv(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t),M=[[/日期/,"date"],[/国家/,"country"],[/品种/,"species"],[/类型/,"kind"],[/币种/,"cur"],[/单位/,"unit"],[/来源/,"source"],[/备注/,"note"],[/价/,"price"]];const ks=(rs[0]||[]).map(c=>{for(const m of M)if(m[0].test(c))return m[1];return""});
+if(!ks.includes("price")){msg="表头需包含“价格”列，请对照模板。";return render()}
+const rows=rs.slice(1).filter(a=>!/^示例/.test(a.join(""))&&a.some(x=>x.trim())).map(a=>{const o={id:Date.now()+Math.random(),date:today(),country:"",species:"牛",kind:"活重",price:"",cur:"",unit:"公斤",source:"",note:""};ks.forEach((k,i)=>{if(k&&a[i])o[k]=a[i].trim()});o.date=nd(o.date)||today();o.country=ctry(o.country)||o.country;o.species=speciesOf(o.species)||o.species;o.kind=kindOf(o.kind)||"活重";o.unit=unitOf(o.unit)||o.unit||"公斤";o.cur=(curOf(o.cur)||o.cur||LCUR[o.country]||"CNY").toUpperCase();o.price=(o.price.replace(/,/g,"").match(/\d+(?:\.\d+)?/)||[""])[0];return o}).filter(r=>r.price);S.live.push(...rows);save();msg=`导入 ${rows.length} 条。`;render()})}
+function liveChart(){const L=S.live.map(r=>({r,v:liveCny(r)})).filter(x=>x.v>0&&x.r.species==LS&&x.r.kind==LK&&dayN(x.r.date)>0);
+if(!L.length)return'<p class="stat">所选品种和类型暂无可画的数据（需要有价格，且该币种有汇率）。</p>';
+const by={};L.forEach(x=>{const k=x.r.country||"未填";(by[k]=by[k]||[]).push([dayN(x.r.date),x.v])});
+const xs=L.map(x=>dayN(x.r.date)),ys=L.map(x=>x.v),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys)*.95,y1=Math.max(...ys)*1.05,W=340,H=210,PL=36;
+const sx=x=>PL+(x1===x0?.5:(x-x0)/(x1-x0))*(W-PL-10),sy=y=>H-24-(y-y0)/((y1-y0)||1)*(H-40),lab=d=>new Date(d*864e5).toISOString().slice(0,10);
+const cs=["#0f5c7a","#c2410c","#15803d","#7c3aed","#b91c1c","#0891b2","#a16207","#be185d","#475569"],ks=Object.keys(by);
+const lines=ks.map((k,i)=>{const pts=by[k].sort((a,b)=>a[0]-b[0]);return`<polyline fill="none" stroke="${cs[i%9]}" stroke-width="2" points="${pts.map(p=>sx(p[0]).toFixed(1)+","+sy(p[1]).toFixed(1)).join(" ")}"/>`+pts.map(p=>`<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="3" fill="${cs[i%9]}"/>`).join("")}).join("");
+return`<div class="tw" style="padding:6px"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:320px"><g fill="currentColor" font-size="10"><text x="2" y="${sy(y1)+4}">${y1.toFixed(1)}</text><text x="2" y="${sy(y0)+4}">${y0.toFixed(1)}</text><text x="${PL}" y="${H-6}">${lab(x0)}</text><text x="${W-62}" y="${H-6}">${lab(x1)}</text></g>${lines}</svg></div><p class="stat">${ks.map((k,i)=>`<span style="color:${cs[i%9]}">● ${esc(k)}</span>`).join("　")}</p>`}
+function vLive(){const q=QL.trim().toLowerCase(),all=S.live.map((_,i)=>i).filter(i=>{const r=S.live[i];return!q||[r.date,r.country,r.species,r.kind,r.source,r.note].some(x=>String(x||"").toLowerCase().includes(q))}).reverse();
+const lbl='style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)"',opt=(a,v)=>a.map(s=>`<option ${s==v?"selected":""}>${s}</option>`).join("");
+return`<section><h2>国内外活畜价格</h2><p class="h">记录各国和国内的牛、羊、猪价格，自动折算成人民币元/公斤；活重价和胴体价分开记录。页面不能自动联网抓取，请粘贴文字、导入表格或手动录入。</p>
+<textarea id="lx" oninput="TV.lx=this.value" placeholder="例如：&#10;2026.10.10 澳大利亚 活牛 澳元/公斤&#10;肉牛 7.85&#10;巴西 牛 胴体 320 雷亚尔/阿罗瓦">${esc(TV.lx||"")}</textarea>
+<div class="row"><button class="b" onclick="liveText()">识别文字</button><label ${lbl}>导入 CSV<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="liveCsv(this.files[0])"></label><button class="g" onclick="liveTpl()">下载模板</button><button class="g" onclick="liveExp()">导出</button></div></section>
+<section><h2>价格走势（人民币元/公斤）</h2><div class="row"><select onchange="LS=this.value;render()">${opt(["牛","羊","猪"],LS)}</select><select onchange="LK=this.value;render()">${opt(["活重","胴体"],LK)}</select></div>${liveChart()}</section>
+<section><h2>采集来源清单</h2><p class="h">需要更新时，对 Claude 说“更新活畜价格”，会按这个清单逐个去查并录入。可以补充或修改网址。</p>${grid("sources",S.sources.map((_,i)=>i))}</section>
+<section><h2>其他币种汇率（兑人民币）</h2><p class="h">美元自动取“汇率”页签当日汇率，人民币为 1；澳元、新西兰元、雷亚尔等也按“汇率”页签里的“其他币种汇率”自动换算。这里的表只是备用：某个币种在汇率页签里一条都没有时，才用这里填的汇率。</p>${grid("fx",S.fx.map((_,i)=>i))}</section>
+<section><h2>已录入价格</h2><p class="h">单位可选：公斤、100公斤、磅、100磅(cwt)、吨、阿罗瓦(15kg)。</p><div class="row"><input value="${esc(QL)}" placeholder="搜国家/品种/类型/日期" style="flex:1;min-width:200px" onchange="QL=this.value;render()"><span class="stat">${all.length}/${S.live.length}</span></div>
+${grid("live",all,{h:"<th>人民币元/公斤</th><th>检查</th>",f:r=>{const v=liveCny(r);return`<td>${v||""}</td><td>${v?(v<2||v>300?'<span class="tag w">量级可疑</span>':""):'<span class="tag w">缺汇率或价格</span>'}</td>`}})}</section>`}
+
+
+function bakBanner(){const n=S.offers.length+S.spot.length+S.factories.length;if(!n)return"";const d=S.lastBackup?Math.floor((Date.now()-S.lastBackup)/864e5):null;return d===null||d>=7?`<section style="border-color:var(--warn);background:var(--warnb)"><p class="stat" style="margin:0;color:var(--warn)">${d===null?"还没有备份过数据":"已 "+d+" 天没有备份"}。数据只存在这个浏览器里，建议到“备份恢复”页签点一下一键备份。</p></section>`:""}
+const B64=u8=>{let s="";for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s)};
+const UNB64=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+async function aesKey(pw,salt){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:150000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function encText(pw,text){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await aesKey(pw,salt),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(text));return{app:"baopan",enc:1,v:1,salt:B64(salt),iv:B64(iv),data:B64(new Uint8Array(ct))}}
+async function decText(pw,o){const key=await aesKey(pw,UNB64(o.salt)),pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:UNB64(o.iv)},key,UNB64(o.data));return new TextDecoder().decode(pt)}
+async function pinHash(pin,saltB64){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pin),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:UNB64(saltB64),iterations:150000,hash:"SHA-256"},base,256);return B64(new Uint8Array(bits))}
+let LOCKED=false,LOCKCFG=null,LASTACT=Date.now(),FAILS=0,FAILT=0,HID=0;
+function loadLock(){try{LOCKCFG=JSON.parse(localStorage.getItem("rmzd_lock")||"null")}catch(e){LOCKCFG=null}}
+async function pwCheck(pw){return!!LOCKCFG&&await pinHash(pw,LOCKCFG.salt)===LOCKCFG.hash}
+function showLock(){if(LOCKED||!LOCKCFG||!document.createElement)return;LOCKED=true;const d=document.createElement("div");d.id="lockov";d.style.cssText="position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px";
+d.innerHTML='<div style="font-size:22px;font-weight:700">肉贸智达</div><div class="stat">请输入访问密码</div><input id="lockpw" type="password" autocomplete="current-password" style="max-width:260px" placeholder="访问密码"><button class="b" id="lockbtn">解锁</button><div class="stat" id="lockmsg" style="color:var(--err)"></div>';document.body.appendChild(d);
+const go=async()=>{const m=d.querySelector("#lockmsg"),pw=d.querySelector("#lockpw").value;if(Date.now()<FAILT){m.textContent="输错次数太多，请等 "+Math.ceil((FAILT-Date.now())/1000)+" 秒再试";return}
+if(await pwCheck(pw)){LOCKED=false;FAILS=0;LASTACT=Date.now();d.remove()}else{FAILS++;m.textContent="密码不对";d.querySelector("#lockpw").value="";if(FAILS>=5){FAILT=Date.now()+30000;FAILS=0;m.textContent="连续输错 5 次，请等 30 秒再试"}}};
+d.querySelector("#lockbtn").onclick=go;d.querySelector("#lockpw").onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>{const x=d.querySelector("#lockpw");if(x)x.focus()},60)}
+function lockNow(){showLock()}
+async function pwSet(){const a=document.getElementById("pwnew").value,b=(document.getElementById("pwnew2")||{}).value;if(a.length<4){msg="密码至少 4 位。";return render()}if(a!==b){msg="两次输入的密码不一样。";return render()}const salt=B64(crypto.getRandomValues(new Uint8Array(16)));LOCKCFG={salt,hash:await pinHash(a,salt),idle:5};localStorage.setItem("rmzd_lock",JSON.stringify(LOCKCFG));msg="已设置访问密码：以后每次打开、或 5 分钟不操作后，都需要输入。请牢记，忘记无法找回。";render()}
+async function pwChange(){const o=document.getElementById("pwold").value,n=document.getElementById("pwnew").value;if(!(await pwCheck(o))){msg="当前密码不对。";return render()}if(n.length<4){msg="新密码至少 4 位。";return render()}const salt=B64(crypto.getRandomValues(new Uint8Array(16)));LOCKCFG=Object.assign({},LOCKCFG,{salt,hash:await pinHash(n,salt)});localStorage.setItem("rmzd_lock",JSON.stringify(LOCKCFG));msg="密码已修改。";render()}
+async function pwRemove(){const o=document.getElementById("pwold").value;if(!(await pwCheck(o))){msg="当前密码不对，不能取消。";return render()}localStorage.removeItem("rmzd_lock");LOCKCFG=null;msg="已取消访问密码。";render()}
+function pwIdle(v){if(!LOCKCFG)return;LOCKCFG.idle=+v;localStorage.setItem("rmzd_lock",JSON.stringify(LOCKCFG));msg="已保存自动锁定时间。";render()}
+function secPanel(){const c=LOCKCFG;return`<section><h2>自动备份</h2><p class="h">一次录入、修改完成后，如果 5 分钟没有任何操作，程序会自动把完整备份下载到这台电脑（默认的“下载”文件夹，文件名带日期和时间）。需要保持这个页面开着；浏览器第一次可能会询问是否允许下载多个文件，请选“允许”。</p><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="min-width:0" ${S.autoBk!==false?"checked":""} onchange="S.autoBk=this.checked;save();BKPEND=false;render()"> 开启自动备份</label><p class="stat">上次备份：${S.lastBackup?esc(new Date(S.lastBackup).toLocaleString()):"还没有"}。自动备份文件是否加密，取决于下面“备份加密”里有没有填密码。</p></section>
+<section><h2>访问密码</h2><p class="h">设置后，每次打开程序、以及一段时间不操作后，都要先输入密码。它能防住别人随手翻看你的手机，数据本身仍存放在这个浏览器里。忘记密码无法找回，只能清除浏览器数据（本地数据会丢失），所以请先做好备份。</p>${c?`<p class="stat">已设置访问密码。</p><div class="row"><input id="pwold" type="password" placeholder="当前密码" style="width:140px"><input id="pwnew" type="password" placeholder="新密码（改密码时填）" style="width:160px"></div><div class="row"><button class="g" onclick="pwChange()">修改密码</button><button class="d" onclick="pwRemove()">取消密码</button><button class="g" onclick="lockNow()">立即锁定</button></div><div class="row"><span class="stat">不操作多久自动锁定：</span><select onchange="pwIdle(this.value)">${[[1,"1分钟"],[5,"5分钟"],[15,"15分钟"],[30,"30分钟"],[0,"不自动锁定"]].map(a=>`<option value="${a[0]}" ${(c.idle==null?5:c.idle)==a[0]?"selected":""}>${a[1]}</option>`).join("")}</select></div>`:`<div class="row"><input id="pwnew" type="password" placeholder="设置访问密码（至少4位）" style="width:200px"><input id="pwnew2" type="password" placeholder="再输一次" style="width:130px"></div><div class="row"><button class="b" onclick="pwSet()">设置访问密码</button></div>`}</section>
+<section><h2>备份加密</h2><p class="h">备份文件默认是普通文本，用任何文本软件都能直接看到里面的内容。在下面填写加密密码后再点“一键备份”，生成的文件只有输入同一个密码才能打开；恢复加密备份时，也要先在这里填入密码。留空则不加密。加密密码忘了同样无法找回。</p><div class="row"><input id="bkpw" type="password" value="${esc(BKPW)}" oninput="BKPW=this.value" placeholder="备份加密密码（留空则不加密）" style="flex:1;min-width:200px"></div></section>`}
+if(typeof document!=="undefined"&&document.addEventListener){document.addEventListener("pointerdown",()=>{LASTACT=Date.now()},true);document.addEventListener("keydown",()=>{LASTACT=Date.now()},true);document.addEventListener("visibilitychange",()=>{if(document.hidden)HID=Date.now();else if(LOCKCFG&&LOCKCFG.idle!==0&&Date.now()-HID>60000)showLock()});setInterval(()=>{if(!LOCKED&&LOCKCFG&&LOCKCFG.idle!==0&&Date.now()-LASTACT>(LOCKCFG.idle==null?5:LOCKCFG.idle)*60000)showLock()},10000)}
+async function backupAll(auto){const pw=BKPW||(document.getElementById("bkpw")||{}).value||"",d=new Date(),hm=String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0");let o={app:"baopan",v:1,date:today(),data:S},nm=(auto?"肉贸智达自动备份_"+today()+"_"+hm:"肉贸智达备份_"+today())+".json";if(pw){o=await encText(pw,JSON.stringify(o));nm=nm.replace("备份_","加密备份_")}
+let ok=false;try{ok=await dl(nm,JSON.stringify(o))}catch(e){}
+if(ok){S.lastBackup=Date.now();save();BKPEND=false;if(auto)msg="已自动备份到电脑："+nm;render()}else if(auto){BKNEXT=Date.now()+600000;BKPEND=true;msg="自动备份没有成功（浏览器可能拦截了下载），请手动点一次“一键备份”。";render()}}
+function autoBackupTick(){if(S.autoBk!==false&&BKPEND&&!LOCKED&&Date.now()>BKNEXT&&Date.now()-LASTACT>300000){BKPEND=false;backupAll(true)}}
+if(typeof document!=="undefined"&&document.addEventListener){["wheel","touchstart","scroll","pointermove"].forEach(ev=>document.addEventListener(ev,()=>{LASTACT=Date.now()},{capture:true,passive:true}));setInterval(autoBackupTick,15000)}
+function backupAll0(){dl("肉贸智达备份_"+today()+".json",JSON.stringify({app:"baopan",v:1,date:today(),data:S})).then(ok=>{if(ok){S.lastBackup=Date.now();save();render()}})}
+function restoreAll(f){if(!f)return;readFile(f,async t=>{let j;try{j=JSON.parse(t)}catch(e){msg="文件格式不对，无法恢复。";return render()}if(j&&j.enc){const pw=(document.getElementById("bkpw")||{}).value||"";if(!pw){msg="这是加密备份，请先在“备份加密”的密码框里输入密码，再选择文件恢复。";return render()}try{j=JSON.parse(await decText(pw,j))}catch(e){msg="密码不对，或文件已损坏，无法解密。";return render()}}const d=j&&j.data||j;if(!d||!(Array.isArray(d.offers)||Array.isArray(d.spot)||Array.isArray(d.factories))){msg="这不是本系统的备份文件。";return render()}
+if(!confirm(`恢复会用备份里的数据覆盖当前所有数据（报盘 ${(d.offers||[]).length} 条、现货 ${(d.spot||[]).length} 条、工厂 ${(d.factories||[]).length} 个）。确定恢复？`))return;
+SN.clear();S=Object.assign({offers:[],tax:[],map:[],rate:7.2,groups:[],factories:[],spot:[],rates:[],taxReal:false},d);["offers","tax","map","groups","factories","spot","rates","live","fx","rules","events","goods","sources","randPlants","combos","plantAlias","plantPrefix","customers","fxd","amb","live"].forEach(k=>{if(!Array.isArray(S[k]))S[k]=[]});S.rates.sort((a,b)=>a.date.localeCompare(b.date));migGroups();D=[];DS=[];SEL=new Set();save();msg="已恢复备份。";render()})}
+function vBak(){const n=a=>S[a].length;return`<section><h2>一键备份与恢复</h2><p class="h">把所有数据（已录入报盘、现货行情、工厂名录、产品对应、税率、汇率、集团关系）存成一个文件；换手机、清理浏览器前先备份，之后一键恢复。</p>
+<div class="row"><button class="b" onclick="backupAll()">一键备份全部数据</button><label style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)">恢复备份<input type="file" accept=".json" hidden onchange="restoreAll(this.files[0])"></label></div>
+<p class="stat">上次备份：${S.lastBackup?new Date(S.lastBackup).toLocaleString():"还没有备份过"}</p>
+<p class="stat">当前数据：报盘 ${n("offers")} 条，现货 ${n("spot")} 条，工厂 ${n("factories")} 个，产品对应 ${n("map")} 条，税率 ${n("tax")} 个国家，汇率 ${n("rates")} 天。</p><p class="stat">恢复会覆盖当前所有数据，请先备份当前数据再恢复。</p></section>${secPanel()}`}
+
+let PV={prod:"",country:"",plant:"",metric:1,range:"all",spot:false,live:false,species:"牛",kind:"活重",idx:false,axis:true,zoom:1,pan:1,fc:true,spec:""};
+const ema=(a,n)=>{const k=2/(n+1);let e=a[0];return a.map((x,i)=>i?(e=x*k+e*(1-k)):e)};
+function macdOf(v){const a=ema(v,12),b=ema(v,26),dif=v.map((_,i)=>a[i]-b[i]),dea=ema(dif,9);return{dif,dea,hist:dif.map((x,i)=>2*(x-dea[i]))}}
+function rsiOf(v,n=14){const r=v.map(()=>null);if(v.length<=n)return r;let g=0,l=0;for(let i=1;i<=n;i++){const d=v[i]-v[i-1];if(d>0)g+=d;else l-=d}g/=n;l/=n;r[n]=l?100-100/(1+g/l):100;for(let i=n+1;i<v.length;i++){const d=v[i]-v[i-1];g=(g*(n-1)+(d>0?d:0))/n;l=(l*(n-1)+(d<0?-d:0))/n;r[i]=l?100-100/(1+g/l):100}return r}
+function daily(arr,vf,df){const m={},mt={};arr.forEach(r=>{const v=vf(r),d=nd(df(r));if(v>0&&d){(m[d]=m[d]||[]).push(v);const t=mt[d]=mt[d]||{c:new Set(),p:new Set()};if(r.country)t.c.add(r.country);if(r.plant)t.p.add(String(r.plant))}});return Object.keys(m).sort().map(d=>{const a=m[d].reduce((x,y)=>x+y,0)/m[d].length;return[d,a,{v:a,c:[...mt[d].c],p:[...mt[d].p]}]})}
+const pvGrp=()=>{if(!PV.plant)return null;const q=plantQ(PV.plant)||{ps:plantsOf(PV.plant),c:""},c=q.c||PV.country;return[...new Set(q.ps.flatMap(p=>gOf(p,c)))]};
+const pvHit=(r,g)=>(!PV.prod||(stdOf(r)||r.product)===PV.prod)&&(!PV.country||r.country===PV.country)&&(!g||rowIn(r,g));
+function pvVal(o){const p=parseFloat(o.price);if(!(p>0))return 0;if(PV.metric==1)return o.cur==="USD"?p:0;if(PV.metric==2)return o.cur==="USD"?p*rateInfo(o.date).rate:p;return calc(o)||0}
+function sigOf(v,mc,rs){const n=v.length;if(n<30)return{t:"数据不足",d:`MACD 和 RSI 需要至少 30 个报盘日的数据，目前只有 ${n} 个。`};const i=n-1,r=rs[i],h=mc.hist[i],hp=mc.hist[i-1],up=mc.dif[i]>mc.dea[i];let sc=0,w=[];
+if(r>=80){sc--;w.push(`RSI ${r.toFixed(0)}，超买`)}else if(r<=20){sc++;w.push(`RSI ${r.toFixed(0)}，超卖`)}else w.push(`RSI ${r.toFixed(0)}，中性`);
+if(up){sc+=h>hp?1:.5;w.push(`DIF 在 DEA 上方${h>hp?"，红柱放大":"，红柱收窄"}（偏多）`)}else{sc-=h<hp?1:.5;w.push(`DIF 在 DEA 下方${h<hp?"，绿柱放大":"，绿柱收窄"}（偏空）`)}
+return{t:sc>=1.5?"偏买入":sc<=-1.5?"偏卖出":"观望",d:w.join("；")}}
+function chart(series,o){const W=340,H=o.h||200,PL=40,PB=18,PT=6,x0=o.x0,x1=o.x1;
+const all=series.flatMap(s=>s.pts.map(p=>p[1]));if(o.lv)all.push(...o.lv);if(o.bars)all.push(...o.bars.map(b=>b[1]),0);
+let y0=Math.min(...all),y1=Math.max(...all);if(o.fix){y0=o.fix[0];y1=o.fix[1]}else{const pad=(y1-y0||1)*.08;y0-=pad;y1+=pad}
+const sx=d=>PL+(x1===x0?.5:(dayN(d)-x0)/(x1-x0))*(W-PL-8),sy=v=>H-PB-(v-y0)/((y1-y0)||1)*(H-PB-PT),lab=n=>new Date(n*864e5).toISOString().slice(0,10);let g="";
+(o.ev||[]).forEach(d=>{const n=dayN(d);if(n>=x0&&n<=x1)g+=`<line x1="${sx(d)}" x2="${sx(d)}" y1="${PT}" y2="${H-PB}" stroke="#94a3b8" stroke-dasharray="3 3"/>`});
+(o.lv||[]).forEach(v=>g+=`<line x1="${PL}" x2="${W-8}" y1="${sy(v)}" y2="${sy(v)}" stroke="#94a3b8" stroke-dasharray="2 3"/><text x="2" y="${sy(v)+3}" font-size="9" fill="currentColor">${v}</text>`);
+if(o.bars){const bw=Math.max(1.5,(W-PL-8)/Math.max(o.bars.length,1)*.6);o.bars.forEach(b=>{const yv=sy(b[1]),z=sy(0);g+=`<rect x="${sx(b[0])-bw/2}" y="${Math.min(yv,z)}" width="${bw}" height="${Math.abs(yv-z)||1}" fill="${b[1]>=0?"#dc2626":"#16a34a"}" opacity=".7"/>`})}
+series.forEach(s=>{if(s.pts.length)g+=`<polyline fill="none" stroke="${s.c}" stroke-width="${s.dash?1.2:1.8}"${s.dash?' stroke-dasharray="4 3"':""} points="${s.pts.map(p=>sx(p[0]).toFixed(1)+","+sy(p[1]).toFixed(1)).join(" ")}"/>`+(s.pts.length<40&&!s.dash?s.pts.map(p=>`<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="2.2" fill="${s.c}"/>`).join(""):"")});
+series.forEach(s=>{if(!s.lab||s.pts.length<2)return;const P=s.pts,ex=[];for(let i=1;i<P.length-1;i++){const a=P[i-1][1],b=P[i][1],c=P[i+1][1];if((b-a)*(c-b)<0)ex.push({i,amp:Math.abs(b-a)+Math.abs(c-b),low:b<a&&b<c})}
+const by=(x,y)=>y.amp-x.amp,lows=ex.filter(e=>e.low).sort(by).slice(0,s.lab),highs=ex.filter(e=>!e.low).sort(by).slice(0,s.lab),pk=new Set([...lows,...highs].map(e=>e.i));pk.add(0);pk.add(P.length-1);let lx=-99;
+[...pk].sort((a,b)=>a-b).forEach(i=>{const p=P[i],m=p[2]||{},x=sx(p[0]),y=sy(p[1]);if(x-lx<16)return;lx=x;
+const up=i===0?P[1][1]<p[1]:i===P.length-1?P[i-1][1]<p[1]:(p[1]>P[i-1][1]&&p[1]>P[i+1][1]),low=!up;
+const l1=p[0].slice(5)+" "+Math.round(m.v!=null?m.v:p[1]),pl=(m.p||[]).slice(0,2).join("/")+((m.p||[]).length>2?"…":""),l2=[(m.c||[]).slice(0,2).join("/"),pl].filter(Boolean).join(" ");
+const an=x>W-62?"end":x<PL+26?"start":"middle";let y1=up?y-(l2?11:5):y+8;y1=Math.max(PT+6,Math.min(H-PB-(l2?9:2),y1));
+g+=`<text font-size="${low?6.5:6}" font-weight="${low?700:600}" opacity="${low?1:.9}" fill="${s.c}" text-anchor="${an}"><tspan x="${x.toFixed(1)}" y="${y1.toFixed(1)}">${esc(l1)}</tspan>${l2?`<tspan x="${x.toFixed(1)}" y="${(y1+7).toFixed(1)}">${esc(l2)}</tspan>`:""}</text>`})});
+{const sxn=n=>PL+(x1===x0?.5:(n-x0)/(x1-x0))*(W-PL-8),ms=[],d0=new Date(x0*864e5);let yy0=d0.getUTCFullYear(),mo=d0.getUTCMonth();if(Date.UTC(yy0,mo,1)/864e5<x0)mo++;
+for(;;mo++){const yy=yy0+Math.floor(mo/12),m0=((mo%12)+12)%12,t=Date.UTC(yy,m0,1)/864e5;if(t>x1||ms.length>600)break;ms.push({t,m:m0+1,y:yy})}
+const maxL=Math.max(2,Math.floor((W-PL-8)/17));let st=1;for(const s of[1,2,3,4,6,12,24,36,60]){st=s;if(Math.ceil(ms.length/s)<=maxL)break}
+let tk="",first=true;ms.forEach(q=>{const show=st<=12?((q.m-1)%st===0):(q.m===1&&((q.y-ms[0].y)%(st/12)===0));if(!show)return;const x=sxn(q.t).toFixed(1);tk+=`<line x1="${x}" x2="${x}" y1="${H-PB}" y2="${H-PB+3}" stroke="#94a3b8"/>`;
+if(st>=12)tk+=`<text x="${x}" y="${H-5}" text-anchor="middle">${q.y}</text>`;else{tk+=`<text x="${x}" y="${H-9}" text-anchor="middle">${q.m}</text>`;if(q.m===1||first)tk+=`<text x="${x}" y="${H-1}" text-anchor="middle" font-size="7" opacity=".75">${q.y}</text>`}first=false});
+if(!tk)tk=`<text x="${PL}" y="${H-4}">${lab(x0)}</text><text x="${W-64}" y="${H-4}">${lab(x1)}</text>`;
+g+=`<g fill="currentColor" font-size="9"><text x="2" y="${PT+8}">${+y1.toFixed(1)}</text><text x="2" y="${H-PB}">${+y0.toFixed(1)}</text>${tk}</g>`}
+return`<div class="tw" data-ch="1" style="padding:4px;touch-action:pan-y;cursor:grab"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:320px">${g}</svg></div>`}
+function draftTable(){const D0=D,chk=CHK,PGa=0,PGb=D0.length;return`<div class="tw tv"><table><tr><th></th><th>#</th><th></th>${GC.offers.map(c=>`<th>${c.l}</th>`).join("")}</tr>${D.slice(PGa,PGb).map((r,k)=>{const i=PGa+k;const c=chk[i];return`<tr class="${c.e.length?"e":c.w.length?"w":""}"><td><button class="g" style="padding:2px 8px" onclick="copyRow(${i})">复制</button></td><td style="color:var(--mut);text-align:right">${i+1}</td><td><input type="checkbox" style="min-width:0" ${SEL.has(i)?"checked":""} onchange="tg(${i})"></td>${GC.offers.map(k=>k.calc?`<td>${k.l=="检查"?tags(c):k.calc(r)}</td>`:k.k=="cur"?`<td><select style="padding:4px" onchange="ed(${i},'cur',this.value)"><option ${r.cur=="USD"?"selected":""}>USD</option><option ${r.cur=="RMB"?"selected":""}>RMB</option></select></td>`:`<td><input class="${k.k=="note"?"w":k.k=="date"?"dt":""}" value="${esc(r[k.k])}" onchange="ed(${i},'${k.k}',this.value)"></td>`).join("")}</tr>`}).join("")}</table></div>`}
+function refreshDraft(){const e=document.getElementById("dtab");if(!e){render();return}const t0=e.querySelector?e.querySelector(".tw"):null,st=t0?[t0.scrollTop,t0.scrollLeft]:null;e.innerHTML=draftTable();const t1=e.querySelector?e.querySelector(".tw"):null;if(st&&t1){t1.scrollTop=st[0];t1.scrollLeft=st[1]}const s=document.getElementById("selcnt");if(s)s.textContent=selText()}
+function selText(){return"已选 "+SEL.size+" 行"+(D.length&&SEL.size>=D.length?"（已全选）":"")}
+function syncChecks(){const q=document.querySelectorAll?document.querySelectorAll("#dtab input[type=checkbox]"):[];q.forEach(c=>{const m=(c.getAttribute("onchange")||"").match(/tg\((\d+)\)/);if(m)c.checked=SEL.has(+m[1])});const s=document.getElementById("selcnt");if(s)s.textContent=selText()}
+function selNone(){SEL.clear();syncChecks()}
+function sel50(){let n=0;for(let i=0;i<D.length&&n<50;i++)if(!SEL.has(i)){SEL.add(i);n++}syncChecks()}
+function copyRow(i){const r=D[i];if(!r)return;const n=Object.assign({},r,{uid:Math.random().toString(36).slice(2)});delete n.pick;D.splice(i+1,0,n);const s=new Set();SEL.forEach(x=>s.add(x>i?x+1:x));SEL=s;msg=`已复制第 ${i+1} 行，新行是第 ${i+2} 行，改一下产品、价格等即可。`;persistDraft();render()}
+function addRow(){const l=D[D.length-1]||{};D.push({uid:Math.random().toString(36).slice(2),date:l.date||today(),country:l.country||"",plant:l.plant||"",brand:l.brand||"",product:"",spec:"",ship:l.ship||"",qty:"",cur:l.cur||"USD",price:"",pay:l.pay||"",note:""});render();const t=document.querySelector?document.querySelector(".tw.tv"):null;if(t)t.scrollTop=t.scrollHeight}
+function spAddRow(){const l=DS[DS.length-1]||{};DS.push({date:l.date||today(),country:l.country||"",plant:l.plant||"",product:"",price:""});render();const t=document.querySelector?document.querySelector(".tw.tv"):null;if(t)t.scrollTop=t.scrollHeight}
+let CQ="";
+const CH=["客户名称","地址","联系人","职务","电话","微信","邮箱","分类","备注"],CK=["name","addr","contact","title","phone","wechat","email","type","note"];
+function parseCust(t){const rows=[],blocks=String(t).split(/\n\s*\n+/).map(b=>b.trim()).filter(Boolean);
+for(const b of blocks){const L=b.split(/\n/).map(s=>s.trim()).filter(Boolean),r=BLANK.customers();
+const ph=[...b.matchAll(/(?<!\d)(?:\+?86[- ]?)?(1[3-9]\d{9})(?!\d)|(?<!\d)(0\d{2,3}[- ]?\d{7,8})(?!\d)|\+\d{1,3}[ -]?\d[\d -]{6,14}\d/g)].map(m=>m[0].trim());r.phone=[...new Set(ph)].join(" / ");
+const em=b.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g);if(em)r.email=[...new Set(em)].join(" / ");
+const wx=b.match(/(?:微信|wechat|vx)\s*(?:号)?\s*[:：]?\s*([A-Za-z0-9_\-]{5,30})/i);if(wx)r.wechat=wx[1];
+const nl=b.match(/(?:客户名称|公司名称|公司|名称)\s*[:：]\s*(\S.*)/)||null;
+r.name=nl?nl[1].trim():(L.find(s=>/公司|有限|集团|商行|贸易|食品|肉业|冷库|屠宰|牧业|农场|超市|酒店|餐饮|工厂|批发|经销/.test(s)&&!/^(?:地址|联系人|电话|邮箱|微信)/.test(s))||"").replace(/^[\d.、\s]+/,"").trim();
+const ad=b.match(/(?:地址|addr(?:ess)?)\s*[:：]\s*(\S.*)/i);r.addr=ad?ad[1].trim():(L.find(s=>s!==r.name&&/省|市|区|县|路|街|号|镇|乡|园|大厦|开发区/.test(s)&&s.length>6&&!/@|电话|手机/.test(s))||"");
+const cn=b.match(/(?:联系人|姓名|联系)\s*[:：]\s*([\u4e00-\u9fa5A-Za-z·]{2,10})/);if(cn)r.contact=cn[1];
+const tt=b.match(/(?:职务|岗位|职位)\s*[:：]\s*([\u4e00-\u9fa5A-Za-z]{2,10})/)||b.match(/(总经理|副总经理|采购经理|销售经理|业务经理|采购总监|副总|经理|总监|采购|主管|老板|董事长|业务员|销售|主任|负责人|总)/);if(tt)r.title=tt[1];
+if(!r.contact){const m2=b.match(/([\u4e00-\u9fa5]{1,3})(总经理|副总|采购经理|销售经理|经理|总监|采购|主管|老板|总|先生|女士)/);if(m2){r.contact=m2[1]+(/先生|女士/.test(m2[2])?m2[2]:"");if(!r.title&&!/先生|女士/.test(m2[2]))r.title=m2[2]}}
+if(r.name)rows.push(r)}
+return rows}
+function custMerge(rows){let add=0,upd=0;rows.forEach(r=>{const e=S.customers.find(x=>String(x.name).trim().toLowerCase()===String(r.name).trim().toLowerCase());if(e){CK.forEach(k=>{if(r[k]&&!e[k])e[k]=r[k]});upd++}else{S.customers.push(Object.assign(BLANK.customers(),r));add++}});save();return[add,upd]}
+function custTpl(){dl("客户资料模板.csv",csvOut(CH,[["示例：请删除本行","示例地址","张三","采购经理","13800000000","wx_example","a@example.com","贸易商","备注"]]))}
+function custExp(){dl("客户资料.csv",csvOut(CH,S.customers.map(r=>CK.map(k=>r[k]))))}
+function custText(){const t=document.getElementById("cx").value;const r=parseCust(t);if(!r.length){msg="没有识别到客户：每个客户之间请空一行，每个客户里至少要有公司名称（含“公司、集团、商行”等字样，或写“客户名称：xx”）。";return render()}const[a,u]=custMerge(r);msg=`识别出 ${r.length} 个客户：新增 ${a}，合并到已有 ${u}。请在下面表格核对。`;render()}
+function custCsv(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t),M=[[/客户名称|公司|名称/,"name"],[/地址/,"addr"],[/联系人|姓名/,"contact"],[/职务|岗位|职位/,"title"],[/微信/,"wechat"],[/邮箱|邮件|email/i,"email"],[/电话|手机|联系方式|tel/i,"phone"],[/分类|类型/,"type"],[/备注/,"note"]];
+const ks=(rs[0]||[]).map(c=>{for(const m of M)if(m[0].test(c))return m[1];return""});if(!ks.includes("name")){msg="表头里没有找到“客户名称”，请对照模板。";return render()}
+const rows=rs.slice(1).filter(a=>a.some(x=>x.trim())&&!/^示例/.test(a.join(""))).map(a=>{const o={};ks.forEach((k,i)=>{if(k&&a[i])o[k]=String(a[i]).trim()});return o}).filter(o=>o.name);const[ad,up]=custMerge(rows);msg=`导入 ${rows.length} 行：新增 ${ad}，合并到已有 ${up}。`;render()})}
+function vCust(){const q=CQ.trim().toLowerCase(),all=S.customers.map((_,i)=>i).filter(i=>{const r=S.customers[i];return!q||CK.some(k=>String(r[k]||"").toLowerCase().includes(q))}).reverse(),lbl='style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)"';
+return`<section><h2>客户资料</h2><p class="h">整理和存档客户信息：客户名称、地址、联系人、职务、电话、微信、邮箱、分类、备注。可粘贴文字识别（每个客户之间空一行）、导入表格（Excel 或 CSV）、手动新增，同名客户自动合并。页面不能联网，想找潜在客户，请对我说，我去网上查，整理好后给你导入。</p>
+<textarea id="cx" oninput="TV.cx=this.value" style="min-height:140px" placeholder="例如：&#10;上海某某食品有限公司&#10;地址：上海市浦东新区某某路100号&#10;联系人：张三 采购经理&#10;电话：13800000000 邮箱：a@b.com 微信：wx_abc123&#10;&#10;北京某某肉业有限公司&#10;……">${esc(TV.cx||"")}</textarea>
+<div class="row"><button class="b" onclick="custText()">识别文字</button><label ${lbl}>导入表格<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="custCsv(this.files[0])"></label><button class="g" onclick="custTpl()">下载模板</button><button class="g" onclick="custExp()">导出全部</button></div>
+<div class="row"><input value="${esc(CQ)}" placeholder="搜客户名称、联系人、电话、地址、分类…" style="flex:1;min-width:180px" onchange="CQ=this.value;render()"><span class="stat">${all.length}/${S.customers.length} 个</span></div>
+${grid("customers",all)}</section>`}
+function pickTrend(p,c,pl){PV.prod=decodeURIComponent(p);PV.country=decodeURIComponent(c);PV.plant=decodeURIComponent(pl);render();if(window.scrollTo)window.scrollTo(0,0)}
+function searchPanel(){const q=PS.trim();if(!q)return"";const enc=encodeURIComponent,pq=plantQ(q);let rows,title;
+if(pq){rows=S.offers.filter(r=>rowIn(r,pq.keys));title=`厂号“${esc(q)}”所在集团：${esc(fmtG(pq.keys))}`}
+else{const ql=q.toLowerCase(),sn=stdName(q);rows=S.offers.filter(r=>{const s=String(stdOf(r)||"").toLowerCase();return s.includes(ql)||String(r.product||"").toLowerCase().includes(ql)||(sn&&stdOf(r)===sn)});title=`产品“${esc(q)}”`}
+if(!rows.length)return`<section><h2>搜索结果</h2><p class="stat">${title}：没有找到已录入的报盘。</p></section>`;
+const latest=a=>a.slice().sort((x,y)=>String(y.date||"").localeCompare(String(x.date||""))||0)[0],pkn=r=>stdOf(r)||String(r.product||"");
+const grp=(keyf)=>{const m=new Map();rows.forEach(r=>{const k=keyf(r);if(!m.has(k))m.set(k,[]);m.get(k).push(r)});return[...m.entries()]};
+const prods=new Set(rows.map(pkn));let body="";
+const btn=(p,c,pl)=>`<button class="g" style="padding:2px 8px" onclick="pickTrend('${enc(p)}','${enc(c)}','${enc(pl)}')">走势</button>`;
+if(pq||prods.size>1){const g=grp(pkn).sort((a,b)=>b[1].length-a[1].length).slice(0,40);
+body=`<div class="tw"><table><tr><th>产品</th><th>条数</th><th>最新日期</th><th>最新价</th><th>国家</th><th>厂号</th><th>价格范围</th><th></th></tr>${g.map(([k,a])=>{const l=latest(a),ps=a.map(r=>+r.price).filter(x=>x>0);return`<tr><td>${esc(k)}</td><td>${a.length}</td><td>${esc(l.date)}</td><td>${esc(l.price)} ${esc(l.cur||"")}</td><td>${esc(l.country||"")}</td><td>${esc(String(l.plant||"").slice(0,24))}</td><td>${ps.length?Math.min(...ps)+"–"+Math.max(...ps):""}</td><td>${btn(k,"",pq?q:"")}</td></tr>`}).join("")}</table></div>`}
+else{const pn=[...prods][0],g=grp(r=>(r.country||"")+"|"+(r.plant||"")).sort((a,b)=>b[1].length-a[1].length).slice(0,40);
+body=`<div class="tw"><table><tr><th>国家</th><th>厂号</th><th>条数</th><th>最新日期</th><th>最新价</th><th>价格范围</th><th></th></tr>${g.map(([k,a])=>{const l=latest(a),ps=a.map(r=>+r.price).filter(x=>x>0);return`<tr><td>${esc(l.country||"")}</td><td>${esc(String(l.plant||"").slice(0,24))}</td><td>${a.length}</td><td>${esc(l.date)}</td><td>${esc(l.price)} ${esc(l.cur||"")}</td><td>${ps.length?Math.min(...ps)+"–"+Math.max(...ps):""}</td><td>${btn(pn,l.country||"",String(l.plant||"").split("/")[0])}</td></tr>`}).join("")}</table></div>`}
+return`<section><h2>搜索结果</h2><p class="stat">${title}，共 ${rows.length} 条报盘。点“走势”可在下方图表查看。</p>${body}</section>`}
+const ZS=[1,1.5,2,3,4,6,8,12,16,24,32];
+function zoomChart(d){const i=ZS.indexOf(PV.zoom||1),j=Math.min(ZS.length-1,Math.max(0,(i<0?0:i)+d));PV.zoom=ZS[j];render()}
+function panChart(d){const tot=PV.tot||1,sp=PV.sp||tot,den=Math.max(1,tot-sp);PV.pan=Math.min(1,Math.max(0,(PV.pan==null?1:PV.pan)+d*0.5*sp/den));render()}
+function zoomReset(){PV.zoom=1;PV.pan=1;render()}
+function fcast(P,mc,rs){if(P.length<12)return null;const tN=dayN(P[P.length-1][0]),t0=dayN(P[0][0]);if(tN-t0<90)return null;
+const start=Math.max(t0,tN-364),nW=Math.floor((tN-start)/7)+1,y=[];
+for(let w=0;w<nW;w++){const a=start+w*7,b=a+7,v=P.filter(p=>{const d=dayN(p[0]);return d>=a&&d<b}).map(p=>p[1]);y.push(v.length?v.reduce((s,x)=>s+x,0)/v.length:null)}
+let last=null;for(let i=0;i<y.length;i++){if(y[i]==null)y[i]=last;else last=y[i]}let nxt=null;for(let i=y.length-1;i>=0;i--){if(y[i]==null)y[i]=nxt;else nxt=y[i]}
+const n=y.length;if(n<8)return null;const a=.4,bt=.15,ph=.95;let l=y[0],b=(y[Math.min(3,n-1)]-y[0])/Math.min(3,n-1),errs=[];
+for(let t=1;t<n;t++){const pr=l+ph*b,e=y[t]-pr;errs.push(e);const ln=a*y[t]+(1-a)*(l+ph*b);b=bt*(ln-l)+(1-bt)*ph*b;l=ln}
+const sg=Math.sqrt(errs.reduce((s,x)=>s+x*x,0)/errs.length),m26=y.slice(-26).reduce((s,x)=>s+x,0)/Math.min(26,n),i=P.length-1;
+const hist=mc.hist[i],hp=mc.hist[i-1],up=mc.dif[i]>mc.dea[i],dir=up&&hist>hp?1:(!up&&hist<hp?-1:0),r=rs[i],ext=r!=null&&(r>=80||r<=20),notes=[];
+notes.push(`最近一年的价格趋势：${b>0?"小幅上行":b<0?"小幅下行":"基本走平"}（趋势在预测中逐步减弱）`);
+if(dir)notes.push(`MACD ${dir>0?"偏多（DIF在DEA上方且柱放大），趋势上调30%":"偏空（DIF在DEA下方且柱放大），趋势下调30%"}`);else notes.push("MACD 方向不明确，不做调整");
+if(ext)notes.push(`RSI ${r.toFixed(0)}（${r>=80?"超买":"超卖"}），预测向近半年均价回归一部分`);
+const bAdj=b*(1+.3*dir),pts=[];let cum=0;
+const at=h=>{let c=0;for(let k=1;k<=h;k++)c+=Math.pow(ph,k);let f=l+c*bAdj;if(ext){const w=.15*Math.min(1,h/13);f=f*(1-w)+m26*w}const s=Math.min(sg*Math.sqrt(h),.3*Math.abs(l));return{v:f,lo:f-s,hi:f+s,tc:l+bAdj*h}};
+const lastD=P[P.length-1][0],dd=k=>new Date((tN+k)*864e5).toISOString().slice(0,10);
+for(let h=1;h<=13;h++){const o=at(h);pts.push([dd(h*7),o.v,o.lo,o.hi])}
+const m2=at(9),m3=at(13);return{last:P[P.length-1][1],lastD,m2:Object.assign({d:dd(61)},m2),m3:Object.assign({d:dd(92)},m3),pts,notes,sg}}
+function fcPanel(F,mName){if(!PV.fc)return"";if(!F)return`<section><h2>价格预测（2–3个月）</h2><p class="stat">数据不足：需要至少 12 个报盘日期、时间跨度 3 个月以上，才能做预测。</p></section>`;
+const pc=v=>((v/F.last-1)*100).toFixed(1)+"%",f=v=>Math.round(v).toLocaleString();
+const row=(t,o)=>`<tr><td>${t}（${o.d}）</td><td><b>${f(o.v)}</b></td><td>${f(o.lo)} – ${f(o.hi)}</td><td>${pc(o.v)}</td><td>${f(o.tc)}</td></tr>`;
+return`<section><h2>价格预测（2–3个月）</h2><p class="stat">依据：${esc(mName)}的历史走势（带衰减的趋势外推）、MACD 方向和 RSI 超买超卖。最新价 ${f(F.last)}（${F.lastD}）。</p><div class="tw"><table><tr><th>时间</th><th>预测价</th><th>参考区间</th><th>较最新</th><th>若趋势不减弱</th></tr>${row("2个月后",F.m2)}${row("3个月后",F.m3)}</table></div><p class="stat">${F.notes.map(esc).join("；")}。</p><p class="stat">“预测价”里趋势会逐渐减弱，更偏保守；“若趋势不减弱”是把最近的涨跌速度原样延续，属于激进情形，两者之间可以当作参考范围。这是根据历史数据做的统计外推，只能给出大致方向和范围，不包含政策、供需、汇率、运费等突发因素，实际价格可能明显不同。参考区间是历史波动的大致幅度，不是保证。请结合你的行业判断使用。</p></section>`}
+function spotFc(g){const sp=daily(S.spot.filter(r=>pvHit(r,g)),r=>parseFloat(r.price),r=>r.date);if(sp.length<12)return{err:`现货价格数据不足：同一产品（按你选的国家、厂号）需要至少 12 个报价日期、时间跨度 3 个月以上，目前只有 ${sp.length} 个报价日期。`};const v=sp.map(p=>p[1]),F=fcast(sp,macdOf(v),rsiOf(v));return F?{F,sp}:{err:"现货价格的时间跨度不足 3 个月，暂时无法预测。"}}
+function costNowOf(off){if(!off.length)return null;const mx=off.reduce((a,o)=>String(o.date||"")>a?String(o.date):a,""),dm=dayN(mx);const cs=off.filter(o=>dayN(o.date)>=dm-30).map(o=>calc(o)).filter(x=>x>0).sort((a,b)=>a-b);return cs.length?{v:cs[cs.length>>1],d:mx,n:cs.length}:null}
+function spotPanel(SF,C){if(!PV.fc)return"";const hd=`<section><h2>现货价格预测（3个月后）与期货对比</h2>`;if(!SF||SF.err)return hd+`<p class="stat">${esc(SF?SF.err:"")}</p></section>`;
+const F=SF.F,f=v=>Math.round(v).toLocaleString(),pc=(a,b)=>((a/b-1)*100).toFixed(1)+"%",sg=v=>(v>=0?"+":"")+f(v);
+if(!C)return hd+`<p class="stat">现货最新价 ${f(F.last)}（${F.lastD}），3个月后预测约 ${f(F.m3.v)}（参考区间 ${f(F.m3.lo)} – ${f(F.m3.hi)}）。当前期货的人民币成本价算不出来（缺少国家、税率或没有近30天的报盘），所以没法做对比，请先导入税率并确认报盘的国家。</p></section>`;
+const now=F.last-C.v,fut=F.m3.v-C.v,flo=F.m3.lo-C.v,fhi=F.m3.hi-C.v,tc=F.m3.tc-C.v;
+const row=(a,b,c)=>`<tr><td>${a}</td><td>${b}</td><td>${c||""}</td></tr>`;
+const concl=fut>0?`预测 3 个月后现货价比当前期货成本高约 ${f(fut)} 元/吨（${pc(F.m3.v,C.v)}）。`:`预测 3 个月后现货价比当前期货成本低约 ${f(-fut)} 元/吨（${pc(F.m3.v,C.v)}），需要留意跌价风险。`;
+return hd+`<div class="tw"><table><tr><th>项目</th><th>价格（元/吨）</th><th>说明</th></tr>${row("当前现货价（"+F.lastD+"）",f(F.last),"现货报价的最新值")}${row("当前期货报盘成本价（"+C.d+"）",f(C.v),"近30天 "+C.n+" 条报盘的中位数，含汇率、税率、加价")}${row("现在的价差（现货 − 期货成本）",sg(now),pc(F.last,C.v))}${row("3个月后预测现货价（"+F.m3.d+"）","<b>"+f(F.m3.v)+"</b>","参考区间 "+f(F.m3.lo)+" – "+f(F.m3.hi)+"；较当前现货 "+pc(F.m3.v,F.last))}${row("预测价差（3个月后现货 − 当前期货成本）","<b>"+sg(fut)+"</b>","区间 "+sg(flo)+" 至 "+sg(fhi)+"；若趋势不减弱 "+sg(tc))}</table></div><p class="stat">${concl}${F.notes.map(esc).join("；")}。</p><p class="stat">说明：期货成本按当前报盘价算，到港一般要 2–3 个月，所以拿 3 个月后的预测现货价去比。预测是统计外推，现货价受供需、政策、节假日影响大，期货的实际成交价、费用和汇率变化也没有计入，只能做粗略参考。</p></section>`}
+function zoomBar(W0,W1,tot,zm){if(tot<=45)return"";const lab=n=>new Date(n*864e5).toISOString().slice(0,10);return`<div class="row"><button class="g" onclick="zoomChart(-1)">－缩小</button><button class="g" onclick="zoomChart(1)">＋放大</button><button class="g" onclick="panChart(-1)">◀ 往前</button><button class="g" onclick="panChart(1)">往后 ▶</button><button class="g" onclick="zoomReset()">全部</button></div><p class="stat">当前显示 ${lab(W0)} 至 ${lab(W1)}（放大 ${zm} 倍）。也可以直接在图上左右拖动。</p>`}
+let DRG=null,DRT=0;
+if(document.addEventListener){document.addEventListener("pointerdown",e=>{const t=e.target&&e.target.closest?e.target.closest("[data-ch]"):null;if(t&&PV.sp&&PV.tot>PV.sp+1)DRG={x:e.clientX,pan:PV.pan==null?1:PV.pan,w:Math.max(100,t.getBoundingClientRect().width)}},true);
+document.addEventListener("pointermove",e=>{if(!DRG)return;const dx=e.clientX-DRG.x,den=Math.max(1,PV.tot-PV.sp);PV.pan=Math.min(1,Math.max(0,DRG.pan-(dx/DRG.w)*PV.sp/den));if(!DRT){DRT=1;requestAnimationFrame(()=>{DRT=0;render()})}},true);
+const upd=()=>{DRG=null};document.addEventListener("pointerup",upd,true);document.addEventListener("pointercancel",upd,true)}
+function vTrend(){const cnt=a=>{const m={};a.forEach(x=>{if(x)m[x]=(m[x]||0)+1});return Object.keys(m).sort((a,b)=>m[b]-m[a])};
+const prods=cnt(S.offers.map(o=>stdOf(o)||o.product)),ctrs=cnt(S.offers.map(o=>o.country));if(!PV.prod&&prods.length)PV.prod=prods[0];
+const specB=S.offers.filter(o=>(!PV.prod||(stdOf(o)||o.product)===PV.prod)&&(!PV.country||o.country===PV.country)),specs=[...new Set(specB.map(o=>String(o.spec||"").trim()).filter(Boolean))].sort(),hasNone=specB.some(o=>!String(o.spec||"").trim());if(PV.spec&&PV.spec!=="__none"&&!specs.includes(PV.spec))PV.spec="";if(PV.spec==="__none"&&!hasNone)PV.spec="";
+const g=pvGrp(),off=S.offers.filter(o=>pvHit(o,g)&&(!PV.spec||(PV.spec==="__none"?!String(o.spec||"").trim():String(o.spec||"").trim()===PV.spec))),main=daily(off,pvVal,o=>o.date),vals=main.map(p=>p[1]),mc=macdOf(vals),rs=rsiOf(vals),n=vals.length;
+const cut=PV.range==="all"?0:dayN(today())-(+PV.range),keep=main.map((p,i)=>dayN(p[0])>=cut?i:-1).filter(i=>i>=0);
+const spotD=PV.spot?daily(S.spot.filter(r=>pvHit(r,g)),r=>parseFloat(r.price),r=>r.date).filter(p=>dayN(p[0])>=cut):[];
+const liveD=PV.live?daily(S.live.filter(r=>r.species===PV.species&&r.kind===PV.kind&&(!PV.country||r.country===PV.country)),r=>liveCny(r)*1000,r=>r.date).filter(p=>dayN(p[0])>=cut):[];
+const idx=PV.idx||((PV.spot||PV.live)&&PV.metric==1),nm=a=>idx&&a.length?a.map(p=>[p[0],p[1]/a[0][1]*100,p[2]]):a;
+const mName=["报盘美元价","报盘折人民币价","报盘人民币成本价"][PV.metric-1];
+const ser=[{name:mName,c:"#0f5c7a",pts:nm(keep.map(i=>main[i])),lab:6},{name:"国内现货价",c:"#c2410c",pts:nm(spotD),lab:4},{name:`${PV.country||"各国"}${PV.species}${PV.kind}价`,c:"#15803d",pts:nm(liveD),lab:3}].filter(s=>s.pts.length);
+const SF=PV.fc?spotFc(g):null;const FC=fcast(main,mc,rs);if(PV.fc&&FC){const k0=keep.length?main[keep[0]][1]:1,fk=idx?100/k0:1,ln=(l,ix)=>({name:l,c:"#b45309",nl:ix,dash:true,pts:FC.pts.map(p=>[p[0],p[ix?(l==="预测上沿"?3:2):1]*fk,{v:p[ix?(l==="预测上沿"?3:2):1]}])});ser.push(Object.assign(ln("预测(参考)",0),{pts:[[FC.lastD,FC.last*fk,{v:FC.last}]].concat(FC.pts.map(p=>[p[0],p[1]*fk,{v:p[1]}]))}),ln("预测上沿",1),ln("预测下沿",1))}
+if(PV.fc&&SF&&SF.F&&PV.spot&&spotD.length){const fk2=idx?100/spotD[0][1]:1;ser.push({name:"现货预测(参考)",c:"#c2410c",dash:true,pts:[[SF.F.lastD,SF.F.last*fk2,{v:SF.F.last}]].concat(SF.F.pts.map(p=>[p[0],p[1]*fk2,{v:p[1]}]))})}
+const ds=ser.flatMap(s=>s.pts.map(p=>dayN(p[0]))),x0=Math.min(...ds),x1=Math.max(...ds),ev=(S.events||[]).map(e=>e.date);let X0=x0,X1=x1;if(PV.axis&&PV.range==="all"){const evd=ev.map(dayN).filter(v=>v>0);if(evd.length){X0=Math.min(x0,...evd);X1=Math.max(x1,dayN(today()))}}
+const tot=Math.max(1,X1-X0),zm=Math.max(1,PV.zoom||1),sp=tot/zm,pn=Math.min(1,Math.max(0,PV.pan==null?1:PV.pan)),W0=X0+(tot-sp)*pn,W1=W0+sp;PV.tot=tot;PV.sp=sp;
+const inW=n=>n>=W0-0.5&&n<=W1+0.5,serW=ser.map(s=>Object.assign({},s,{pts:s.pts.filter(p=>inW(dayN(p[0])))})),kw=keep.filter(i=>inW(dayN(main[i][0])));
+const kp=keep.map(i=>main[i][0]);
+const sel=(k,arr,v,all)=>`<select onchange="PV.${k}=this.value;render()">${all?`<option value="">${all}</option>`:""}${arr.map(s=>`<option ${s==v?"selected":""}>${esc(s)}</option>`).join("")}</select>`;
+const last=vals[n-1],ch=k=>n>k?((last/vals[n-1-k]-1)*100).toFixed(1)+"%":"—",sg=sigOf(vals,mc,rs);
+let fc="";if(n>=10){const y=vals.slice(-10),mx=4.5,my=y.reduce((a,b)=>a+b,0)/10;let sxy=0,sxx=0;y.forEach((v,i)=>{sxy+=(i-mx)*(v-my);sxx+=(i-mx)**2});fc=`按最近 10 个报盘日的趋势外推，下一期约 ${(my+sxy/sxx*(10-mx)).toFixed(0)}（仅供参考）。`}
+const lbl=(k,t)=>`<label style="margin-right:10px"><input type="checkbox" style="width:auto" ${PV[k]?"checked":""} onchange="PV.${k}=this.checked;render()"> ${t}</label>`;
+return`<section><h2>行情透视</h2><p class="h">选择产品、国家、厂号（含同集团）查看报盘价走势，并可叠加国内现货价、该国活畜价，下方是 MACD 和 RSI 指标。</p>
+<div class="row"><input value="${esc(PS)}" placeholder="搜索产品或厂号（集团内任一厂号，都显示全集团）" style="flex:1;min-width:180px" onchange="PS=this.value;render()"><button class="g" onclick="PS='';render()">清除</button></div>
+<div class="row">${sel("prod",prods,PV.prod)}<select onchange="PV.spec=this.value;render()"><option value="">全部规格</option>${hasNone?`<option value="__none" ${PV.spec=="__none"?"selected":""}>无规格</option>`:""}${specs.map(s=>`<option ${s==PV.spec?"selected":""}>${esc(s)}</option>`).join("")}</select>${sel("country",ctrs,PV.country,"全部国家")}<input value="${esc(PV.plant)}" placeholder="厂号（可空）" style="width:110px" onchange="PV.plant=this.value;render()"></div>
+<div class="row"><select onchange="PV.metric=+this.value;render()">${["报盘美元价","报盘折人民币价（不含税）","报盘人民币成本价（含税）"].map((t,i)=>`<option value="${i+1}" ${PV.metric==i+1?"selected":""}>${t}</option>`).join("")}</select><select onchange="PV.range=this.value;render()">${[["all","全部时间"],["30","近30天"],["90","近90天"],["180","近180天"],["365","近1年"],["730","近2年"]].map(a=>`<option value="${a[0]}" ${PV.range==a[0]?"selected":""}>${a[1]}</option>`).join("")}</select></div>
+<div class="row">${lbl("spot","对比国内现货价")}${lbl("live","对比活畜价")}${lbl("idx","指数化（起点=100）")}${lbl("axis","时间轴延伸到最早的事件（显示全部事件虚线）")}${lbl("fc","显示2–3个月预测")}</div>
+${PV.live?`<div class="row">${sel("species",["牛","羊","猪"],PV.species)}${sel("kind",["活重","胴体"],PV.kind)}<span class="stat">活畜价换算成元/吨（活重/胴体，不含加工），只看趋势，不代表同口径价差。</span></div>`:""}
+${(PV.spot||PV.live)&&PV.metric==1?`<p class="stat">美元价和人民币价不能放在同一数值轴，已自动改为指数化。</p>`:""}</section>
+${searchPanel()}
+<section><h2>${esc(PV.prod||"—")} ${esc(PV.country||"各国")}${PV.plant?" 厂号"+esc(PV.plant):""}</h2>
+${ser.length?`${zoomBar(W0,W1,tot,zm)}${serW.some(s=>s.pts.length)?chart(serW,{x0:W0,x1:W1,ev}):'<p class="stat">当前显示的时间段内没有数据，请拖动或点“缩小”。</p>'}<p class="stat">${ser.filter(s=>!s.nl).map(s=>`<span style="color:${s.c}">● ${esc(s.name)}</span>`).join("　")}${idx?"（指数）":""}　虚线为重大事件</p>${(()=>{const s0=serW.find(s=>s.name===mName);if(!s0||s0.pts.length<2)return"";const P=s0.pts,ex=[];for(let i=1;i<P.length-1;i++){const a=P[i-1][1],b=P[i][1],c=P[i+1][1];if((b-a)*(c-b)<0)ex.push({i,amp:Math.abs(b-a)+Math.abs(c-b),low:b<a&&b<c})}const by=(x,y)=>y.amp-x.amp,pk=new Set([...ex.filter(e=>e.low).sort(by).slice(0,8),...ex.filter(e=>!e.low).sort(by).slice(0,6)].map(e=>e.i));pk.add(0);pk.add(P.length-1);return`<p class="stat" style="font-size:10px;line-height:1.6">主要转折点：低点加粗，同时列出主要高点（日期　价格　国家　厂号）：${[...pk].sort((a,b)=>a-b).map(i=>{const p=P[i],m=p[2]||{},t=i===0?"起":i===P.length-1?"新":(p[1]>P[i-1][1]?"高":"低");return`<br>${t==="低"?"<b>":""}${t}　${p[0]}　${Math.round(m.v!=null?m.v:p[1])}　${esc((m.c||[]).join("/"))}　${esc((m.p||[]).slice(0,3).join("/"))}${t==="低"?"</b>":""}`}).join("")}</p>`})()}`:'<p class="stat">所选范围内没有数据（美元价只统计美元报盘；人民币成本价需要已导入税率）。</p>'}
+${n?`<p class="stat">最新 ${last.toFixed(0)}（${main[n-1][0]}）；近5期 ${ch(5)}，近20期 ${ch(20)}。${fc}</p>`:""}</section>
+<section><h2>MACD（12,26,9）与 RSI（14）</h2>${kw.length>=2?`${chart([{name:"DIF",c:"#0f5c7a",pts:kw.map(i=>[main[i][0],mc.dif[i]])},{name:"DEA",c:"#c2410c",pts:kw.map(i=>[main[i][0],mc.dea[i]])}],{x0:W0,x1:W1,h:130,bars:kw.map(i=>[main[i][0],mc.hist[i]]),ev})}<p class="stat"><span style="color:#0f5c7a">● DIF</span>　<span style="color:#c2410c">● DEA</span>　红柱=多头，绿柱=空头</p>
+${chart([{name:"RSI",c:"#7c3aed",pts:kw.filter(i=>rs[i]!=null).map(i=>[main[i][0],rs[i]])}],{x0:W0,x1:W1,h:130,fix:[0,100],lv:[20,80],ev})}<p class="stat">RSI 高于 80 为超买，低于 20 为超卖。指标按“每个有报盘的日期”为一期计算。</p>`:'<p class="stat">数据太少，画不出指标。</p>'}
+<p class="stat" style="font-size:15px"><b>操作参考：${sg.t}</b>　${sg.d}</p><p class="stat">以上仅是技术指标的机械判断，不是投资建议；买卖还要结合库存、资金、政策和行情。</p></section>
+${fcPanel(FC,mName)}${spotPanel(SF,costNowOf(off))}
+<section><h2>重大事件标记</h2><p class="h">图上的垂直虚线，不显示文字。日期是大致时间，可以直接修改。</p>${grid("events",rev(S.events))}</section>`}
+
+let GQ="",GS="";
+const GSTAT=["已首付","已发船","已付尾款","清关中","现货"];
+const GF=[["contract","合同号"],["ctn","柜号"],["bl","B/L编号"],["line","船公司"],["status","货物状态"],["port","目的港"],["eta","ETA到港日期"],["cold","仓储冷库"],["agent","代理"],["invoice","发票(有/无)"],["country","国家"],["plant","厂号"],["brand","品牌"],["product","货物名称"],["pcs","件数"],["weight","重量(公斤)"],["prod","生产日期/批号"],["quote","销售报价"],["dp","首付款(元)"],["fp","尾款(元)"],["fin","是否融资(是/否)"],["fst","融资状态(融资中/已结清)"],["fend","结清日期(选填)"],["rate","融资利率(%/年)"],["dpamt","首付融资金额(可为0)"],["dpdate","首付融资日期"],["amt","尾款融资金额"],["due","尾款融资日期"],["sprice","仓储单价(元/吨/天)"],["indate","入库日期"],["outdate","出库日期(选填)"],["afee","代理费用(元)"],["note","备注"]];
+GC.goods=(()=>{const L=[];GF.forEach(x=>{L.push({k:x[0],l:x[1].replace(/\(.*\)/,"")});if(x[0]==="dpdate"){L.push({l:"首付融资天数(自动)",calc:r=>dpDays(r)||(r.fst==="已结清"&&parseFloat(r.dpamt)>0&&!nd(r.fend)?"填结清日期":"")});L.push({l:"首付利息(自动,元)",calc:r=>dpInt(r)||""})}
+if(x[0]==="outdate"){L.push({l:"仓储天数(自动)",calc:r=>stDays(r)||""});L.push({l:"仓储费用(自动,元)",calc:r=>stFee(r)||(parseFloat(r.sprice)>0&&nd(r.indate)&&!(parseFloat(r.weight)>0)?"缺重量":"")})}if(x[0]==="afee"){L.push({l:"货物总成本(元)",calc:r=>totCost(r)||""})}if(x[0]==="due"){L.push({l:"尾款融资天数(自动)",calc:r=>finDays(r)||(r.fst==="已结清"&&parseFloat(r.amt)>0&&!nd(r.fend)?"填结清日期":"")});L.push({l:"尾款利息(自动,元)",calc:r=>finInt(r)||""});L.push({l:"总利息(元)",calc:r=>+(finInt(r)+dpInt(r)).toFixed(2)||""});L.push({l:"融资预警",calc:r=>{const w=finWarn(r);return w==2?'<span class="tag e">红色·满5个月</span>':w==1?'<span class="tag w">黄色·满3个月</span>':""}})}});return L})();BLANK.goods=()=>{const o={};GF.forEach(x=>o[x[0]]="");o.status="已首付";o.fin="否";o.invoice="无";return o};
+function addM(d,n){const a=d.split("-").map(Number);return new Date(Date.UTC(a[0],a[1]-1+n,a[2])).toISOString().slice(0,10)}
+function finWarn(r){if(r.fin!=="是"||r.fst==="已结清")return 0;const d=nd(r.due);if(!d)return 0;const t=today();return addM(d,5)<=t?2:addM(d,3)<=t?1:0}
+function fdays(date,r){const d=nd(date);if(!d)return 0;const end=r.fst==="已结清"?nd(r.fend):today();if(!end)return 0;return Math.max(0,Math.round(dayN(end)-dayN(d)))}
+function stDays(r){const d=nd(r.indate);if(!d)return 0;const end=nd(r.outdate)||today();return Math.max(0,Math.round(dayN(end)-dayN(d)))}
+function stFee(r){const p=parseFloat(r.sprice),d=stDays(r),t=(parseFloat(r.weight)||0)/1000;return p>0&&d>0&&t>0?+(p*t*d).toFixed(2):0}
+function totCost(r){const n=x=>parseFloat(x)||0;return +(n(r.dp)+dpInt(r)+n(r.fp)+finInt(r)+stFee(r)+n(r.afee)).toFixed(2)}
+function intOf(a,r,days){a=parseFloat(a);const y=parseFloat(r.rate);return a>0&&y>0&&days>0?+(a*y/100*days/360).toFixed(2):0}
+function finDays(r){return fdays(r.due,r)}
+function dpDays(r){return fdays(r.dpdate,r)}
+function finInt(r){return intOf(r.amt,r,finDays(r))}
+function dpInt(r){return intOf(r.dpamt,r,dpDays(r))}
+function goodsBanner(){const L=S.goods.filter(r=>finWarn(r)>0);if(!L.length)return"";const red=L.filter(r=>finWarn(r)==2),ye=L.length-red.length,c=red.length?"var(--err)":"var(--warn)",bg=red.length?"var(--errb)":"var(--warnb)";
+return`<section style="border-color:${c};background:${bg};cursor:pointer" onclick="go('goods')"><p class="stat" style="margin:0;color:${c}"><b>融资预警：</b>红色 ${red.length} 个（满5个月），黄色 ${ye} 个（满3个月）。${L.slice(0,4).map(r=>esc(r.contract||r.ctn||r.product)).join("、")}${L.length>4?"…":""}　点此查看</p></section>`}
+function goodsTpl(){dl("货物管理模板.csv",csvOut(GF.map(x=>x[1]),[["HT-001","MSKU0000000","BL0001","马士基","已发船","上海","2026-11-20","德流冷库","某代理","有","巴西","4029","JBS","牛腩","1000","25000","2026-08","52000","300000","1200000","是","融资中","","4.5","200000","2026-08-20","800000","2026-09-01","150","2026-11-25","","8000","示例行，导入前请删除"]]))}
+function goodsExp(){dl("货物明细.csv",csvOut([...GF.map(x=>x[1]),"首付融资天数","首付利息(元)","尾款融资天数","尾款利息(元)","总利息(元)","融资预警","仓储天数","仓储费用(元)","货物总成本(元)"],S.goods.map(r=>[...GF.map(x=>r[x[0]]),dpDays(r)||"",dpInt(r)||"",finDays(r)||"",finInt(r)||"",+(finInt(r)+dpInt(r)).toFixed(2)||"",["","黄色","红色"][finWarn(r)],stDays(r)||"",stFee(r)||"",totCost(r)||""])))}
+function goodsCsv(f){if(!f)return;readFile(f,t=>{const rs=csvParse(t),M=[[/代理费/,"afee"],[/仓储单价|仓储价/,"sprice"],[/入库/,"indate"],[/出库/,"outdate"],[/首付款/,"dp"],[/^尾款(?!融资|日期)/,"fp"],[/结清/,"fend"],[/融资状态/,"fst"],[/融资利率|利率/,"rate"],[/首付融资日期|首付日期/,"dpdate"],[/首付融资金额|首付金额|首付融资(?!天数)/,"dpamt"],[/尾款融资日期|尾款日期/,"due"],[/尾款融资金额|^融资金额/,"amt"],[/是否融资/,"fin"],[/合同/,"contract"],[/柜号/,"ctn"],[/B\/?L|提单/i,"bl"],[/船公司/,"line"],[/货物状态|^状态/,"status"],[/目的港/,"port"],[/ETA|到港/i,"eta"],[/冷库/,"cold"],[/代理/,"agent"],[/发票/,"invoice"],[/国家/,"country"],[/厂号/,"plant"],[/品牌/,"brand"],[/货物名称|品名|产品/,"product"],[/件数/,"pcs"],[/重量/,"weight"],[/生产|批号/,"prod"],[/报价/,"quote"],[/备注/,"note"]];
+const ks=(rs[0]||[]).map(c=>{for(const m of M)if(m[0].test(c))return m[1];return""});if(!ks.includes("contract")&&!ks.includes("ctn")&&!ks.includes("product")){msg="表头里没有找到“合同号/柜号/货物名称”，请对照模板。";return render()}
+const rows=rs.slice(1).filter(a=>!/^示例/.test(a.join(""))&&a.some(x=>x.trim())).map(a=>{const o=BLANK.goods();ks.forEach((k,i)=>{if(k&&a[i]!=null)o[k]=String(a[i]).trim()});return gNorm(o)});
+enrich(rows);S.goods.push(...rows);save();msg=`导入 ${rows.length} 条货物。`;render()})}
+function gNorm(o){o.fin=/是|y|1|true/i.test(o.fin)?"是":"否";o.invoice=/有|是|y/i.test(o.invoice)?"有":/无|否|n/i.test(o.invoice)?"无":o.invoice;o.eta=nd(o.eta)||o.eta;o.due=nd(o.due)||o.due;o.indate=nd(o.indate)||o.indate;o.outdate=nd(o.outdate)||o.outdate;o.dpdate=nd(o.dpdate)||o.dpdate;o.fend=nd(o.fend)||o.fend;o.country=ctry(o.country)||o.country;if(o.fin==="是"&&!o.fst)o.fst="融资中";for(const s of GSTAT)if(o.status&&o.status!==s&&o.status.includes(s))o.status=s;return o}
+function vGoods(){const q=GQ.trim().toLowerCase(),all=S.goods.map((_,i)=>i).filter(i=>{const r=S.goods[i];return(!GS||r.status===GS)&&(!q||GF.some(x=>String(r[x[0]]||"").toLowerCase().includes(q)))}).reverse();
+const cnt={};S.goods.forEach(r=>{const k=r.status||"未填";cnt[k]=(cnt[k]||0)+1});const sum=k=>S.goods.reduce((a,r)=>a+(parseFloat(r[k])||0),0);
+const fin=S.goods.filter(r=>r.fin==="是"&&r.fst!=="已结清"),lbl='style="padding:8px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac)"';
+return`<section><h2>自有货物管理</h2><p class="h">整理公司采购的全部货物。融资利息自动计算：利息 = 融资金额 × 年利率 × 融资天数 ÷ 360。首付融资、尾款融资各算各的，共用同一个融资利率；表格里首付融资在左、尾款融资在右。融资天数从“融资日期”当天起算，一直算到今天；融资状态改成“已结清”并填了“结清日期”的，算到结清日期为止。尾款融资日期满 3 个月黄色预警、满 5 个月红色预警（已结清不预警），打开页面时顶部会有提示。货物总成本 = 首付款 + 首付利息 + 尾款 + 尾款利息 + 仓储费用 + 代理费用；其中仓储费用 = 仓储单价（元/吨/天）× 吨数 × 仓储天数，吨数 = “重量”栏 ÷ 1000（重量按公斤填），天数从入库日期当天算到出库日期（没填出库日期就算到今天）。首付款、尾款、仓储单价、入库日期、代理费用都是手动填入。</p>
+<div class="row"><label ${lbl}>导入 CSV<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="goodsCsv(this.files[0])"></label><button class="g" onclick="goodsTpl()">下载模板</button><button class="g" onclick="goodsExp()">导出全部明细</button></div>
+<p class="stat">共 ${S.goods.length} 条；${Object.keys(cnt).map(k=>`${esc(k)} ${cnt[k]}`).join("，")||"暂无"}。件数合计 ${sum("pcs")}，重量合计 ${sum("weight")}。融资中 ${fin.length} 条，融资金额 ${fin.reduce((a,r)=>a+(parseFloat(r.amt)||0),0)}，首付融资合计 ${sum("dpamt")}，利息合计（含首付利息） ${S.goods.reduce((a,r)=>a+finInt(r)+dpInt(r),0).toFixed(2)} 元；货物总成本合计 ${S.goods.reduce((a,r)=>a+totCost(r),0).toFixed(2)} 元。</p>
+<div class="row"><select onchange="GS=this.value;render()"><option value="">全部状态</option>${GSTAT.map(s=>`<option ${s==GS?"selected":""}>${s}</option>`).join("")}</select><input value="${esc(GQ)}" placeholder="搜合同号/柜号/品名/国家…" style="flex:1;min-width:160px" onchange="GQ=this.value;render()"><span class="stat">${all.length}/${S.goods.length}</span></div>
+${grid("goods",all)}</section>`}
+
+try{const dr=JSON.parse(localStorage.getItem("baopan_draft")||"null");if(dr){D=dr.D||[];DS=dr.DS||[];TV=dr.TV||{}}}catch(e){}
+loadLock();migGroups();ensureSeedGroups();if(!S.groups.length)learnGroups(S.offers);save();render();if(LOCKCFG)showLock();autoCloud();READY=true;
+</script></body></html>
