@@ -98,25 +98,31 @@ def fetch_fx(state, today):
 
 # ---------------------------------------------------------------- 活畜价格
 def parse_cepea(html):
-    """巴西 CEPEA 肥牛指标：日期 | R$/@ | 变化 | US$/@ ，取最新一行。"""
+    """巴西 CEPEA 肥牛指标表：日期 | R$/@ | 变化 | US$/@ ，返回表里所有行（最新在前）。"""
+    rows = []
     for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
         cells = [strip(c) for c in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)]
-        if len(cells) >= 4 and re.match(r"\d{2}/\d{2}/\d{4}", cells[0]):
-            return {"date": to_date(cells[0]), "brl": num(cells[1]), "usd": num(cells[3])}
-    return None
+        if len(cells) >= 2 and re.match(r"\d{2}/\d{2}/\d{4}", cells[0]):
+            try:
+                rows.append({"date": to_date(cells[0]), "brl": num(cells[1])})
+            except Exception:
+                pass
+    return rows
 
 
 def fetch_cepea(state, today):
     try:
-        r = parse_cepea(get("https://www.cepea.esalq.usp.br/br/indicador/boi-gordo.aspx"))
-        if not r:
-            log("CEPEA：页面里没找到指标表（可能改版或被拦截）")
+        rows = parse_cepea(get("https://www.cepea.esalq.usp.br/br/indicador/boi-gordo.aspx"))
+        ok = [r for r in rows if 150 <= r["brl"] <= 900]      # R$/@ 的合理范围，防止取错列
+        if not ok:
+            log("CEPEA：没取到合理的价格（共 %d 行，可能改版或取错了列）" % len(rows))
             return
-        upsert(state["live"], "key", {
-            "key": "BR-CEPEA-" + r["date"].replace("-", ""), "date": r["date"], "country": "巴西",
-            "species": "牛", "kind": "胴体", "price": "%.2f" % r["usd"], "cur": "USD", "unit": "阿罗瓦(15kg)",
-            "fx": "", "source": "CEPEA/ESALQ 圣保罗肥牛指标", "note": "R$%.2f/@；按 CEPEA 公布的美元价录入" % r["brl"]})
-        log("CEPEA：%s R$%.2f / US$%.2f" % (r["date"], r["brl"], r["usd"]))
+        for r in ok[:15]:
+            upsert(state["live"], "key", {
+                "key": "BR-CEPEA-" + r["date"].replace("-", ""), "date": r["date"], "country": "巴西",
+                "species": "牛", "kind": "胴体", "price": "%.2f" % r["brl"], "cur": "BRL", "unit": "阿罗瓦(15kg)",
+                "fx": "", "source": "CEPEA/ESALQ 圣保罗肥牛指标", "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"})
+        log("CEPEA：最新 %s R$%.2f（共录入 %d 行）" % (ok[0]["date"], ok[0]["brl"], len(ok[:15])))
     except Exception as e:
         log("CEPEA 失败：%s" % e)
 
@@ -134,24 +140,54 @@ def parse_au(text):
     return out
 
 
+MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def eng_date(t):
+    m = re.search(r"(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(20\d\d)", t or "")
+    return "%s-%02d-%02d" % (m.group(3), MON.index(m.group(2)) + 1, int(m.group(1))) if m else ""
+
+
+def parse_rss(xml):
+    out = []
+    for it in re.findall(r"<item>(.*?)</item>", xml, re.S):
+        t = re.search(r"<title>(.*?)</title>", it, re.S)
+        l = re.search(r"<link>(.*?)</link>", it, re.S)
+        d = re.search(r"<pubDate>(.*?)</pubDate>", it, re.S)
+        if l:
+            out.append({"title": strip(t.group(1)) if t else "", "link": strip(l.group(1)), "date": eng_date(d.group(1)) if d else ""})
+    return out
+
+
 def fetch_au(state, today):
     try:
         base = "https://pulse.auctionsplus.com.au"
-        idx = get(base + "/market-commentary")
-        m = re.search(r'href="(/market-commentary/indicators[^"]*)"', idx)
-        if not m:
-            log("澳洲指标：没找到最新的 INDICATORS 文章链接")
-            return
-        art = get(base + m.group(1))
-        d = ""
-        mm = re.search(r"(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(20\d\d)", strip(art))
-        if mm:
-            mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].index(mm.group(2)) + 1
-            d = "%s-%02d-%02d" % (mm.group(3), mo, int(mm.group(1)))
+        link, d = "", ""
+        for u in (base + "/market-commentary/rss.xml", base + "/rss.xml"):
+            try:
+                for it in parse_rss(get(u)):
+                    if "indicators" in (it["title"] + it["link"]).lower():
+                        link, d = it["link"], it["date"]
+                        break
+            except Exception as e:
+                log("澳洲 RSS %s 取不到：%s" % (u, e))
+            if link:
+                break
+        if not link:
+            idx = get(base + "/market-commentary")
+            m = re.search(r'href="((?:https://pulse\.auctionsplus\.com\.au)?/(?:market-commentary|aplus-news/insights)/indicators[^"]*)"', idx)
+            if not m:
+                log("澳洲指标：RSS 和列表页里都没找到最新的 INDICATORS 文章（列表页可能是用脚本加载的）")
+                return
+            link = m.group(1)
+        if link.startswith("/"):
+            link = base + link
+        art = strip(get(link))
+        d = d or eng_date(art)
         if not d:
-            log("澳洲指标：文章里没找到日期，为避免记错日期，这次不录入")
+            log("澳洲指标：找不到文章日期，为避免记错日期，这次不录入")
             return
-        v = parse_au(strip(art))
+        v = parse_au(art)
         spec = {"EYCI": ("牛", "胴体", "东部青年牛指标 EYCI"), "NYCI": ("牛", "活重", "全国青年牛指标 NYCI"),
                 "LIGHT": ("羊", "胴体", "轻羔羊指标"), "HEAVY": ("羊", "胴体", "重羔羊指标")}
         for k, price in v.items():
@@ -159,7 +195,7 @@ def fetch_au(state, today):
             upsert(state["live"], "key", {"key": "AU-%s-%s" % (k, d.replace("-", "")), "date": d, "country": "澳大利亚",
                                           "species": sp, "kind": kd, "price": "%.4f" % (price / 100), "cur": "AUD",
                                           "unit": "公斤", "fx": "", "source": "MLA " + nm, "note": "%.2f 澳分/公斤" % price})
-        log("澳洲指标：%s %s" % (d, v))
+        log("澳洲指标：%s %s（%s）" % (d, v, link))
     except Exception as e:
         log("澳洲指标失败：%s" % e)
 
