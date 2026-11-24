@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T13:44:00Z",
+ "updated": "2026-11-24T23:55:59Z",
  "rates": [
   {
    "date": "2026-06-17",
@@ -516,6 +516,10 @@
   {
    "date": "2026-11-24",
    "rate": 6.6832
+  },
+  {
+   "date": "2026-11-25",
+   "rate": 6.6823
   }
  ],
  "fxd": [
@@ -680,6 +684,36 @@
    "date": "2026-11-24",
    "rate": 0.1644,
    "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "AUD",
+   "date": "2026-11-25",
+   "rate": 4.4476,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "CAD",
+   "date": "2026-11-25",
+   "rate": 4.6923,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "EUR",
+   "date": "2026-11-25",
+   "rate": 7.3372,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "GBP",
+   "date": "2026-11-25",
+   "rate": 8.7779,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "NZD",
+   "date": "2026-11-25",
+   "rate": 3.6677,
+   "src": "中行现汇卖出"
   }
  ],
  "live": [
@@ -1048,6 +1082,58 @@
    "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   },
   {
+   "key": "AU-EYCI-20261119",
+   "date": "2026-11-19",
+   "country": "澳大利亚",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "10.4015",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 东部青年牛指标 EYCI",
+   "note": "1040.15 澳分/公斤"
+  },
+  {
+   "key": "AU-NYCI-20261119",
+   "date": "2026-11-19",
+   "country": "澳大利亚",
+   "species": "牛",
+   "kind": "活重",
+   "price": "5.5637",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 全国青年牛指标 NYCI",
+   "note": "556.37 澳分/公斤"
+  },
+  {
+   "key": "AU-LIGHT-20261119",
+   "date": "2026-11-19",
+   "country": "澳大利亚",
+   "species": "羊",
+   "kind": "胴体",
+   "price": "11.3138",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 轻羔羊指标",
+   "note": "1131.38 澳分/公斤"
+  },
+  {
+   "key": "AU-MUTTON-20261119",
+   "date": "2026-11-19",
+   "country": "澳大利亚",
+   "species": "羊",
+   "kind": "胴体",
+   "price": "8.7511",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 全国成年羊(Mutton)指标",
+   "note": "875.11 澳分/公斤"
+  },
+  {
    "key": "BR-CEPEA-20261123",
    "date": "2026-11-23",
    "country": "巴西",
@@ -1059,13 +1145,26 @@
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
    "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261124",
+   "date": "2026-11-24",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "395.45",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   }
  ],
  "log": [
   "中行牌价：取到 AUD,CAD,EUR,GBP,NZD,USD",
   "补充币种(市场中间价)：BRL,ARS,UYU,BOB",
-  "CEPEA：最新 2026-11-23 R$395.20（共录入 15 行）",
-  "澳洲指标：2026-11-19 {}（https://pulse.auctionsplus.com.au/market-commentary/indicators-young-cattle-and-restocker-lambs-ease-as-mutton-climbs）",
+  "CEPEA：最新 2026-11-24 R$395.45（共录入 15 行）",
+  "澳洲指标：2026-11-19 {'EYCI': 1040.15, 'NYCI': 556.37, 'LIGHT': 1131.38, 'MUTTON': 875.11}（https://pulse.auctionsplus.com.au/market-commentary/indicators-young-cattle-and-restocker-lambs-ease-as-mutton-climbs）",
   "中国/乌拉圭/阿根廷/新西兰：暂未接入自动抓取（需要先看真实页面再写）"
  ]
 }
