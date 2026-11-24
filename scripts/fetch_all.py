@@ -127,16 +127,26 @@ def fetch_cepea(state, today):
         log("CEPEA 失败：%s" % e)
 
 
+AU_LABELS = {"EYCI": r"\bEYCI\b", "NYCI": r"\bNYCI\b", "LIGHT": r"Light Lamb Indicator",
+             "HEAVY": r"Heavy Lamb Indicator", "MUTTON": r"National Mutton Indicator"}
+
+
 def parse_au(text):
-    """澳大利亚 MLA 指标（AuctionsPlus Pulse 文章里的文字）：EYCI/NYCI 等，单位 c/kg。"""
+    """澳大利亚 MLA 指标（AuctionsPlus Pulse 每周 INDICATORS 文章）。
+    文章写法如：“The Eastern States Young Cattle Indicator (EYCI) fell 9.08c this week to be 1,040.15c/kg cwt by Friday morning.”
+    先找到含指标名称的那一句，再取这一句里最大的“数字+c”：涨跌幅很小，真正的指标价是其中最大的数。单位：澳分/公斤。"""
     out = {}
-    pats = {"EYCI": r"EYCI[^0-9]{0,80}?(\d{3,4}(?:\.\d+)?)\s*c", "NYCI": r"NYCI[^0-9]{0,80}?(\d{3,4}(?:\.\d+)?)\s*c",
-            "LIGHT": r"[Ll]ight\s+[Ll]amb[^0-9]{0,80}?(\d{3,4}(?:\.\d+)?)\s*c",
-            "HEAVY": r"[Hh]eavy\s+[Ll]amb[^0-9]{0,80}?(\d{3,4}(?:\.\d+)?)\s*c"}
-    for k, p in pats.items():
-        m = re.search(p, text)
-        if m:
-            out[k] = float(m.group(1))
+    sents = re.split(r"(?<=[.!?])\s+(?=[A-Z\u2018\u2019\"(])", re.sub(r"\s+", " ", text))
+    for k, pat in AU_LABELS.items():
+        for st in sents:
+            if re.search(pat, st):
+                vals = []
+                for m in re.finditer(r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*c\b", st):
+                    vals.append(float(m.group(1).replace(",", "")))
+                vals = [v for v in vals if 300 <= v <= 3000]
+                if vals:
+                    out[k] = max(vals)
+                    break
     return out
 
 
@@ -145,7 +155,10 @@ MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "No
 
 def eng_date(t):
     m = re.search(r"(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(20\d\d)", t or "")
-    return "%s-%02d-%02d" % (m.group(3), MON.index(m.group(2)) + 1, int(m.group(1))) if m else ""
+    if m:
+        return "%s-%02d-%02d" % (m.group(3), MON.index(m.group(2)) + 1, int(m.group(1)))
+    m = re.search(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2}),?\s+(20\d\d)", t or "")
+    return "%s-%02d-%02d" % (m.group(3), MON.index(m.group(1)) + 1, int(m.group(2))) if m else ""
 
 
 def parse_rss(xml):
@@ -189,7 +202,8 @@ def fetch_au(state, today):
             return
         v = parse_au(art)
         spec = {"EYCI": ("牛", "胴体", "东部青年牛指标 EYCI"), "NYCI": ("牛", "活重", "全国青年牛指标 NYCI"),
-                "LIGHT": ("羊", "胴体", "轻羔羊指标"), "HEAVY": ("羊", "胴体", "重羔羊指标")}
+                "LIGHT": ("羊", "胴体", "轻羔羊指标"), "HEAVY": ("羊", "胴体", "重羔羊指标"),
+                "MUTTON": ("羊", "胴体", "全国成年羊(Mutton)指标")}
         for k, price in v.items():
             sp, kd, nm = spec[k]
             upsert(state["live"], "key", {"key": "AU-%s-%s" % (k, d.replace("-", "")), "date": d, "country": "澳大利亚",
