@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24T11:19:43Z",
+ "updated": "2026-11-24T13:44:00Z",
  "rates": [
   {
    "date": "2026-06-17",
@@ -515,7 +515,7 @@
   },
   {
    "date": "2026-11-24",
-   "rate": 6.6787
+   "rate": 6.6832
   }
  ],
  "fxd": [
@@ -636,7 +636,7 @@
   {
    "cur": "AUD",
    "date": "2026-11-24",
-   "rate": 4.4351,
+   "rate": 4.4488,
    "src": "中行现汇卖出"
   },
   {
@@ -654,25 +654,25 @@
   {
    "cur": "CAD",
    "date": "2026-11-24",
-   "rate": 4.6688,
+   "rate": 4.6745,
    "src": "中行现汇卖出"
   },
   {
    "cur": "EUR",
    "date": "2026-11-24",
-   "rate": 7.3205,
+   "rate": 7.3349,
    "src": "中行现汇卖出"
   },
   {
    "cur": "GBP",
    "date": "2026-11-24",
-   "rate": 8.7451,
+   "rate": 8.7664,
    "src": "中行现汇卖出"
   },
   {
    "cur": "NZD",
    "date": "2026-11-24",
-   "rate": 3.6517,
+   "rate": 3.6622,
    "src": "中行现汇卖出"
   },
   {
@@ -853,17 +853,30 @@
    "note": "CEPEA/ESALQ 圣保罗肥牛指标 R$/@(15kg胴体)；汇率=美元现汇卖出6.7089÷PTAX 5.0090"
   },
   {
+   "key": "BR-CEPEA-20261030",
+   "date": "2026-10-30",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "389.90",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
    "key": "BR-CEPEA-20261103",
    "date": "2026-11-03",
    "country": "巴西",
    "species": "牛",
    "kind": "胴体",
-   "price": "71.10",
-   "cur": "USD",
+   "price": "390.00",
+   "cur": "BRL",
    "unit": "阿罗瓦(15kg)",
    "fx": "",
-   "source": "程序内置",
-   "note": "CEPEA/ESALQ 圣保罗肥牛指标 R$390.00/@(15kg胴体)，按 CEPEA 公布的美元价 US$71.10/@ 录入"
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   },
   {
    "key": "BR-CEPEA-pig-20261103",
@@ -879,17 +892,160 @@
    "note": "CEPEA 活猪(SP) R$/kg；汇率=美元现汇卖出价6.6874÷(390÷71.10)，按 CEPEA 牛价的美元折算推算(近似)"
   },
   {
+   "key": "BR-CEPEA-20261104",
+   "date": "2026-11-04",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "390.85",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261105",
+   "date": "2026-11-05",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "391.35",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261106",
+   "date": "2026-11-06",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "392.70",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261109",
+   "date": "2026-11-09",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "393.30",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261110",
+   "date": "2026-11-10",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "393.30",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261111",
+   "date": "2026-11-11",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "394.15",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261112",
+   "date": "2026-11-12",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "394.30",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261113",
+   "date": "2026-11-13",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "395.40",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261116",
+   "date": "2026-11-16",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "394.25",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261117",
+   "date": "2026-11-17",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "395.30",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261118",
+   "date": "2026-11-18",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "395.40",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
    "key": "BR-CEPEA-20261119",
    "date": "2026-11-19",
    "country": "巴西",
    "species": "牛",
    "kind": "胴体",
-   "price": "144.00",
-   "cur": "USD",
+   "price": "395.50",
+   "cur": "BRL",
    "unit": "阿罗瓦(15kg)",
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
-   "note": "R$395.50/@；按 CEPEA 公布的美元价录入"
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   },
   {
    "key": "BR-CEPEA-20261123",
@@ -897,19 +1053,19 @@
    "country": "巴西",
    "species": "牛",
    "kind": "胴体",
-   "price": "136.00",
-   "cur": "USD",
+   "price": "395.20",
+   "cur": "BRL",
    "unit": "阿罗瓦(15kg)",
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
-   "note": "R$395.20/@；按 CEPEA 公布的美元价录入"
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   }
  ],
  "log": [
   "中行牌价：取到 AUD,CAD,EUR,GBP,NZD,USD",
   "补充币种(市场中间价)：BRL,ARS,UYU,BOB",
-  "CEPEA：2026-11-23 R$395.20 / US$136.00",
-  "澳洲指标：没找到最新的 INDICATORS 文章链接",
+  "CEPEA：最新 2026-11-23 R$395.20（共录入 15 行）",
+  "澳洲指标：2026-11-19 {}（https://pulse.auctionsplus.com.au/market-commentary/indicators-young-cattle-and-restocker-lambs-ease-as-mutton-climbs）",
   "中国/乌拉圭/阿根廷/新西兰：暂未接入自动抓取（需要先看真实页面再写）"
  ]
 }
