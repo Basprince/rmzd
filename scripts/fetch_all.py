@@ -6,6 +6,7 @@
 """
 import json, os, re, sys, datetime
 from urllib.request import Request, urlopen
+from urllib.parse import urljoin
 
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/124.0 Safari/537.36")
@@ -214,10 +215,51 @@ def fetch_au(state, today):
         log("澳洲指标失败：%s" % e)
 
 
+def probe_mla(state, today):
+    """诊断用：MLA 有免费公开接口（api-mlastatistics.mla.com.au，不需要账号）。这里只看接口说明在不在、有哪些接口，写进日志，方便写正式的读取程序。"""
+    base = "https://api-mlastatistics.mla.com.au"
+    for path in ("/swagger/v1/swagger.json", "/swagger.json", "/openapi.json", "/docs", "/"):
+        try:
+            t = get(base + path, timeout=30)
+            try:
+                j = json.loads(t)
+                paths = list((j.get("paths") or {}).keys())
+                if paths:
+                    log("MLA接口 %s 可用，接口列表：%s" % (path, ", ".join(paths[:40])))
+                    return
+                log("MLA接口 %s：返回JSON，开头：%s" % (path, t[:200].replace("\n", " ")))
+            except Exception:
+                log("MLA接口 %s：返回内容开头：%s" % (path, strip(t)[:200]))
+        except Exception as e:
+            log("MLA接口 %s：失败 %s" % (path, str(e)[:100]))
+
+
+def probe_inac(state, today):
+    """诊断用：乌拉圭 INAC 价格页是用脚本加载数据的，这里读它的脚本，找出数据接口的网址，写进日志。"""
+    base = "https://www.inac.uy/inac/diae/"
+    try:
+        html = get(base + "precio.html", timeout=30)
+        srcs = re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html)
+        mine = [urljoin(base, x) for x in srcs if "inac.uy" in urljoin(base, x) or not x.startswith("http")]
+        found = []
+        pat = re.compile(r"""["']((?:https?://[^"'\s]+|/?[\w\-./]*(?:\.json|\.php|\.jsp|\.do|\.aspx|\.ashx|\.xml|/api/|/rest/|servlet|ajax)[^"'\s]*))["']""", re.I)
+        for src in [None] + mine[:15]:
+            try:
+                t = html if src is None else get(src, timeout=30)
+            except Exception:
+                continue
+            for m in pat.findall(t):
+                if m not in found and not m.endswith((".png", ".jpg", ".css", ".gif", ".svg")) and "jquery" not in m.lower():
+                    found.append(m)
+        log("INAC：页面脚本 %d 个；疑似数据接口：%s" % (len(mine), " | ".join(x[:110] for x in found[:25]) or "没找到"))
+    except Exception as e:
+        log("INAC 诊断失败：%s" % str(e)[:100])
+
+
 def fetch_others(state, today):
     # 中国农业农村部、乌拉圭 INAC/MGAP、阿根廷 MAG-Cañuelas、新西兰 B+LNZ 等：
     # 这些网站结构各不相同，需要看到真实页面后再写，先留空，不影响其他来源。
-    log("中国/乌拉圭/阿根廷/新西兰：暂未接入自动抓取（需要先看真实页面再写）")
+    log("中国/阿根廷/新西兰：暂未接入自动抓取；澳洲 MLA 日度数据、乌拉圭 INAC 等待上面的诊断结果")
 
 
 # ---------------------------------------------------------------- 存取
@@ -244,7 +286,7 @@ def load():
 def main():
     today = datetime.date.today().isoformat()
     st = load()
-    for fn in (fetch_fx, fetch_cepea, fetch_au, fetch_others):
+    for fn in (fetch_fx, fetch_cepea, fetch_au, probe_mla, probe_inac, fetch_others):
         try:
             fn(st, today)
         except Exception as e:
@@ -253,7 +295,7 @@ def main():
     st["fxd"] = sorted(st["fxd"], key=lambda r: (r["date"], r["cur"]))[-3000:]
     st["live"] = sorted(st["live"], key=lambda r: r["date"])[-3000:]
     st["updated"] = datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-    st["log"] = LOG[-20:]
+    st["log"] = LOG[-40:]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(st, f, ensure_ascii=False, indent=1)
