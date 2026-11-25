@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T11:24:44Z",
+ "updated": "2026-11-25T23:41:05Z",
  "rates": [
   {
    "date": "2026-06-17",
@@ -520,6 +520,10 @@
   {
    "date": "2026-11-25",
    "rate": 6.6917
+  },
+  {
+   "date": "2026-11-26",
+   "rate": 6.6873
   }
  ],
  "fxd": [
@@ -738,6 +742,36 @@
    "date": "2026-11-25",
    "rate": 0.1648,
    "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "AUD",
+   "date": "2026-11-26",
+   "rate": 4.4415,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "CAD",
+   "date": "2026-11-26",
+   "rate": 4.7144,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "EUR",
+   "date": "2026-11-26",
+   "rate": 7.3517,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "GBP",
+   "date": "2026-11-26",
+   "rate": 8.7851,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "NZD",
+   "date": "2026-11-26",
+   "rate": 3.6745,
+   "src": "中行现汇卖出"
   }
  ],
  "live": [
@@ -1182,13 +1216,32 @@
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
    "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261125",
+   "date": "2026-11-25",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "396.95",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   }
  ],
  "log": [
   "中行牌价：取到 AUD,CAD,EUR,GBP,NZD,USD",
   "补充币种(市场中间价)：BRL,ARS,UYU,BOB",
-  "CEPEA：最新 2026-11-24 R$395.45（共录入 15 行）",
+  "CEPEA：最新 2026-11-25 R$396.95（共录入 15 行）",
   "澳洲指标：2026-11-19 {'EYCI': 1040.15, 'NYCI': 556.37, 'LIGHT': 1131.38, 'MUTTON': 875.11}（https://pulse.auctionsplus.com.au/market-commentary/indicators-young-cattle-and-restocker-lambs-ease-as-mutton-climbs）",
-  "中国/乌拉圭/阿根廷/新西兰：暂未接入自动抓取（需要先看真实页面再写）"
+  "MLA接口 /swagger/v1/swagger.json：失败 HTTP Error 403: Forbidden",
+  "MLA接口 /swagger.json：失败 HTTP Error 403: Forbidden",
+  "MLA接口 /openapi.json：失败 HTTP Error 403: Forbidden",
+  "MLA接口 /docs：失败 HTTP Error 403: Forbidden",
+  "MLA接口 /：失败 HTTP Error 403: Forbidden",
+  "INAC：页面脚本 10 个；疑似数据接口：http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js | Microsoft.XMLHTTP | Microsoft.XMLDOM | ajax | ajaxComplete | ajaxStop | ajaxStart | ajaxSend | http://www.inac.uy/inac/DIAEUtils | http://www.inac.gub.uy",
+  "中国/阿根廷/新西兰：暂未接入自动抓取；澳洲 MLA 日度数据、乌拉圭 INAC 等待上面的诊断结果"
  ]
 }
