@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T23:41:05Z",
+ "updated": "2026-11-26T11:23:15Z",
  "rates": [
   {
    "date": "2026-06-17",
@@ -523,7 +523,7 @@
   },
   {
    "date": "2026-11-26",
-   "rate": 6.6873
+   "rate": 6.6783
   }
  ],
  "fxd": [
@@ -744,34 +744,58 @@
    "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
   },
   {
+   "cur": "ARS",
+   "date": "2026-11-26",
+   "rate": 0.0042,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
    "cur": "AUD",
    "date": "2026-11-26",
-   "rate": 4.4415,
+   "rate": 4.4377,
    "src": "中行现汇卖出"
+  },
+  {
+   "cur": "BOB",
+   "date": "2026-11-26",
+   "rate": 0.5678,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "BRL",
+   "date": "2026-11-26",
+   "rate": 1.133,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
   },
   {
    "cur": "CAD",
    "date": "2026-11-26",
-   "rate": 4.7144,
+   "rate": 4.7025,
    "src": "中行现汇卖出"
   },
   {
    "cur": "EUR",
    "date": "2026-11-26",
-   "rate": 7.3517,
+   "rate": 7.3359,
    "src": "中行现汇卖出"
   },
   {
    "cur": "GBP",
    "date": "2026-11-26",
-   "rate": 8.7851,
+   "rate": 8.7632,
    "src": "中行现汇卖出"
   },
   {
    "cur": "NZD",
    "date": "2026-11-26",
-   "rate": 3.6745,
+   "rate": 3.6635,
    "src": "中行现汇卖出"
+  },
+  {
+   "cur": "UYU",
+   "date": "2026-11-26",
+   "rate": 0.1648,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
   }
  ],
  "live": [
@@ -1229,13 +1253,78 @@
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
    "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "AU-EYCI-20261126",
+   "date": "2026-11-26",
+   "country": "澳大利亚",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "10.5237",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 东部青年牛指标 EYCI",
+   "note": "1052.37 澳分/公斤"
+  },
+  {
+   "key": "AU-NYCI-20261126",
+   "date": "2026-11-26",
+   "country": "澳大利亚",
+   "species": "牛",
+   "kind": "活重",
+   "price": "5.5602",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 全国青年牛指标 NYCI",
+   "note": "556.02 澳分/公斤"
+  },
+  {
+   "key": "AU-LIGHT-20261126",
+   "date": "2026-11-26",
+   "country": "澳大利亚",
+   "species": "羊",
+   "kind": "胴体",
+   "price": "11.4520",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 轻羔羊指标",
+   "note": "1145.20 澳分/公斤"
+  },
+  {
+   "key": "AU-HEAVY-20261126",
+   "date": "2026-11-26",
+   "country": "澳大利亚",
+   "species": "羊",
+   "kind": "胴体",
+   "price": "11.3945",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 重羔羊指标",
+   "note": "1139.45 澳分/公斤"
+  },
+  {
+   "key": "AU-MUTTON-20261126",
+   "date": "2026-11-26",
+   "country": "澳大利亚",
+   "species": "羊",
+   "kind": "胴体",
+   "price": "8.8762",
+   "cur": "AUD",
+   "unit": "公斤",
+   "fx": "",
+   "source": "MLA 全国成年羊(Mutton)指标",
+   "note": "887.62 澳分/公斤"
   }
  ],
  "log": [
   "中行牌价：取到 AUD,CAD,EUR,GBP,NZD,USD",
   "补充币种(市场中间价)：BRL,ARS,UYU,BOB",
   "CEPEA：最新 2026-11-25 R$396.95（共录入 15 行）",
-  "澳洲指标：2026-11-19 {'EYCI': 1040.15, 'NYCI': 556.37, 'LIGHT': 1131.38, 'MUTTON': 875.11}（https://pulse.auctionsplus.com.au/market-commentary/indicators-young-cattle-and-restocker-lambs-ease-as-mutton-climbs）",
+  "澳洲指标：2026-11-26 {'EYCI': 1052.37, 'NYCI': 556.02, 'LIGHT': 1145.2, 'HEAVY': 1139.45, 'MUTTON': 887.62}（https://pulse.auctionsplus.com.au/market-commentary/indicators-eyci-lifts-as-restocker-steers-and-merino-lambs-surge）",
   "MLA接口 /swagger/v1/swagger.json：失败 HTTP Error 403: Forbidden",
   "MLA接口 /swagger.json：失败 HTTP Error 403: Forbidden",
   "MLA接口 /openapi.json：失败 HTTP Error 403: Forbidden",
