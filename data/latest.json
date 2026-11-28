@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T11:18:27Z",
+ "updated": "2026-11-28T11:15:12Z",
  "rates": [
   {
    "date": "2026-06-17",
@@ -528,6 +528,10 @@
   {
    "date": "2026-11-27",
    "rate": 6.6714
+  },
+  {
+   "date": "2026-11-28",
+   "rate": 6.6728
   }
  ],
  "fxd": [
@@ -853,6 +857,60 @@
    "cur": "UYU",
    "date": "2026-11-27",
    "rate": 0.1648,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "ARS",
+   "date": "2026-11-28",
+   "rate": 0.0042,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "AUD",
+   "date": "2026-11-28",
+   "rate": 4.4461,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "BOB",
+   "date": "2026-11-28",
+   "rate": 0.5646,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "BRL",
+   "date": "2026-11-28",
+   "rate": 1.1946,
+   "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
+  },
+  {
+   "cur": "CAD",
+   "date": "2026-11-28",
+   "rate": 4.692,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "EUR",
+   "date": "2026-11-28",
+   "rate": 7.3045,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "GBP",
+   "date": "2026-11-28",
+   "rate": 8.752,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "NZD",
+   "date": "2026-11-28",
+   "rate": 3.6525,
+   "src": "中行现汇卖出"
+  },
+  {
+   "cur": "UYU",
+   "date": "2026-11-28",
+   "rate": 0.1647,
    "src": "市场中间价(open.er-api.com)，不是中行现汇卖出价"
   }
  ],
@@ -1389,12 +1447,25 @@
    "fx": "",
    "source": "CEPEA/ESALQ 圣保罗肥牛指标",
    "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
+  },
+  {
+   "key": "BR-CEPEA-20261127",
+   "date": "2026-11-27",
+   "country": "巴西",
+   "species": "牛",
+   "kind": "胴体",
+   "price": "398.20",
+   "cur": "BRL",
+   "unit": "阿罗瓦(15kg)",
+   "fx": "",
+   "source": "CEPEA/ESALQ 圣保罗肥牛指标",
+   "note": "R$/@；按雷亚尔录入，程序用当天雷亚尔汇率换算"
   }
  ],
  "log": [
   "中行牌价：取到 AUD,CAD,EUR,GBP,NZD,USD",
   "补充币种(市场中间价)：BRL,ARS,UYU,BOB",
-  "CEPEA：最新 2026-11-26 R$396.70（共录入 15 行）",
+  "CEPEA：最新 2026-11-27 R$398.20（共录入 15 行）",
   "澳洲指标：2026-11-26 {'EYCI': 1052.37, 'NYCI': 556.02, 'LIGHT': 1145.2, 'HEAVY': 1139.45, 'MUTTON': 887.62}（https://pulse.auctionsplus.com.au/market-commentary/indicators-eyci-lifts-as-restocker-steers-and-merino-lambs-surge）",
   "MLA接口 /swagger/v1/swagger.json：失败 HTTP Error 403: Forbidden",
   "MLA接口 /swagger.json：失败 HTTP Error 403: Forbidden",
